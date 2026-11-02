@@ -21,3 +21,8 @@
   The Studio Pro dialog itself is not verifiable here (no Studio Pro).
 - Removed old v1.0.0 .mpk from the repo; renamed GitHub repo to digei91/mendix-status-timeline-chart (via API, gh not installed) and updated the remote.
 - Removed old v1.0.0 .mpk from the repo; renamed GitHub repo to digei91/mendix-status-timeline-chart (API; gh CLI not installed) and updated the remote.
+- v1.2.0: user wanted a "column" chart (their picture = clustered columns) and switching on the page. Added
+  style `columns` (side-by-side bars, totals above each group), renamed "Stacked bars" to "Stacked columns" (key kept),
+  StyleSwitcher component (segmented buttons with icons, icon-only under 520px container width, aria-pressed),
+  settings group "Style switcher", utils/styles.ts + 3 tests. Verified: 17 tests, lint, harness screenshots incl.
+  ?click=Lines / ?click=Columns, narrow view, Studio Pro preview with switcher.

@@ -31,7 +31,7 @@ Chart.register(
     Filler
 );
 
-export type ChartStyle = "bars" | "area" | "lines";
+export type ChartStyle = "bars" | "columns" | "area" | "lines";
 export type LegendPosition = "top" | "bottom" | "left" | "right";
 
 export interface Series {
@@ -61,22 +61,31 @@ const MIN_TOTAL_LABEL_SPACE = 22;
 type AnyDataset = ChartDataset<"bar" | "line", number[]> & { id?: string };
 
 function visibleTotals(chart: Chart): number[] {
-    const totals: number[] = [];
+    return visibleSums(chart, (sum, v) => sum + v);
+}
+
+/** Highest visible value per period: where the tallest column of a side-by-side group ends. */
+function visibleMaxima(chart: Chart): number[] {
+    return visibleSums(chart, Math.max);
+}
+
+function visibleSums(chart: Chart, combine: (acc: number, v: number) => number): number[] {
+    const result: number[] = [];
     chart.data.datasets.forEach((ds, i) => {
         if ((ds as AnyDataset).id === TOTAL_ID || !chart.isDatasetVisible(i)) {
             return;
         }
         (ds.data as number[]).forEach((v, j) => {
-            totals[j] = (totals[j] ?? 0) + (v ?? 0);
+            result[j] = combine(result[j] ?? 0, v ?? 0);
         });
     });
-    return totals;
+    return result;
 }
 
-/** Writes the stack total above each period (stacked bars / area). */
+/** Writes the period total above each stack (stacked columns / area) or above each group (side-by-side columns). */
 const totalLabelsPlugin: Plugin = {
     id: "stcTotals",
-    afterDatasetsDraw(chart, _args, options: { enabled?: boolean }) {
+    afterDatasetsDraw(chart, _args, options: { enabled?: boolean; grouped?: boolean }) {
         if (!options.enabled) {
             return;
         }
@@ -92,9 +101,10 @@ const totalLabelsPlugin: Plugin = {
         ctx.font = `600 11px ${Chart.defaults.font.family}`;
         ctx.textAlign = "center";
         ctx.textBaseline = "bottom";
+        const tops = options.grouped ? visibleMaxima(chart) : undefined;
         visibleTotals(chart).forEach((total, i) => {
             if (total > 0) {
-                ctx.fillText(String(total), x.getPixelForValue(i), y.getPixelForValue(total) - 4);
+                ctx.fillText(String(total), x.getPixelForValue(i), y.getPixelForValue(tops?.[i] ?? total) - 4);
             }
         });
         ctx.restore();
@@ -118,6 +128,20 @@ function buildDatasets(props: StatusChartProps): AnyDataset[] {
                 borderRadius: (ctx: ScriptableContext<"bar">) =>
                     isTopOfStack(ctx) ? { topLeft: 4, topRight: 4, bottomLeft: 0, bottomRight: 0 } : 0,
                 maxBarThickness: 56
+            };
+        }
+        if (chartStyle === "columns") {
+            return {
+                type: "bar",
+                label: s.name,
+                data: s.data,
+                backgroundColor: s.color,
+                hoverBackgroundColor: s.color,
+                borderRadius: { topLeft: 4, topRight: 4, bottomLeft: 0, bottomRight: 0 },
+                borderSkipped: "bottom",
+                categoryPercentage: 0.8,
+                barPercentage: 0.9,
+                maxBarThickness: 40
             };
         }
         const area = chartStyle === "area";
@@ -172,7 +196,8 @@ function isTopOfStack(ctx: ScriptableContext<"bar">): boolean {
 }
 
 function buildOptions(props: StatusChartProps): ChartOptions<"bar" | "line"> {
-    const stacked = props.chartStyle !== "lines";
+    const stacked = props.chartStyle === "bars" || props.chartStyle === "area";
+    const totalsOnTop = props.showTotal && props.chartStyle !== "lines";
     const axisTitle = (text?: string): { display: boolean; text: string; color: string } => ({
         display: !!text,
         text: text ?? "",
@@ -194,7 +219,7 @@ function buildOptions(props: StatusChartProps): ChartOptions<"bar" | "line"> {
             y: {
                 stacked,
                 beginAtZero: true,
-                grace: props.showTotal && stacked ? "8%" : 0,
+                grace: totalsOnTop ? "8%" : 0,
                 grid: { display: props.showGrid, color: GRID },
                 border: { display: false },
                 ticks: { color: TEXT_SECONDARY, precision: 0 },
@@ -240,7 +265,7 @@ function buildOptions(props: StatusChartProps): ChartOptions<"bar" | "line"> {
                 }
             },
             // custom plugin options
-            ...({ stcTotals: { enabled: props.showTotal && stacked } } as object)
+            ...({ stcTotals: { enabled: totalsOnTop, grouped: props.chartStyle === "columns" } } as object)
         }
     };
 }
@@ -268,7 +293,7 @@ export function StatusChart(props: StatusChartProps): ReactElement {
         chart?.destroy();
         Chart.defaults.font.family = getComputedStyle(canvas).fontFamily || Chart.defaults.font.family;
         chartRef.current = new Chart(canvas, {
-            type: props.chartStyle === "bars" ? "bar" : "line",
+            type: props.chartStyle === "bars" || props.chartStyle === "columns" ? "bar" : "line",
             data: { labels: props.labels, datasets: datasets as Array<ChartDataset<"bar" | "line", number[]>> },
             options,
             plugins: [totalLabelsPlugin]

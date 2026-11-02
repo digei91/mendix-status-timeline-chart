@@ -15,7 +15,7 @@ export type EndAtEnum = "today" | "lastChange";
 
 export type WeekStartEnum = "monday" | "sunday";
 
-export type ChartStyleEnum = "bars" | "area" | "lines";
+export type ChartStyleEnum = "bars" | "columns" | "area" | "lines";
 
 export type LegendPositionEnum = "top" | "bottom" | "left" | "right";
 
@@ -41,6 +41,12 @@ export interface StatusTimelineChartContainerProps {
     height: number;
     showTotal: boolean;
     showGrid: boolean;
+    showSwitcher: boolean;
+    offerBars: boolean;
+    offerColumns: boolean;
+    offerArea: boolean;
+    offerLines: boolean;
+    rememberStyle: boolean;
     statusColors: string;
     hiddenStatuses: string;
     statusOrder: string;
@@ -79,6 +85,12 @@ export interface StatusTimelineChartPreviewProps {
     height: number | null;
     showTotal: boolean;
     showGrid: boolean;
+    showSwitcher: boolean;
+    offerBars: boolean;
+    offerColumns: boolean;
+    offerArea: boolean;
+    offerLines: boolean;
+    rememberStyle: boolean;
     statusColors: string;
     hiddenStatuses: string;
     statusOrder: string;

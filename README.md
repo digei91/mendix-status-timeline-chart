@@ -4,7 +4,7 @@ Shows how many items are in each status per day / week / month / quarter / year,
 status-change records (an audit log, a history entity, ...). No helper entities, no microflows. Every setting has a
 tooltip in Studio Pro.
 
-Widget file: `dist\1.1.0\digei.StatusTimelineChart.mpk`
+Widget file: `dist\1.2.0\digei.StatusTimelineChart.mpk`
 
 ## Install
 
@@ -56,8 +56,13 @@ on the change entity's parent (or the change entity itself) and pick that.
     latest change. "End of March: 12 Open, 7 In progress, 40 Done."
   - *Changes per period*: how many changes into each status happened in that period. "In March 9 items moved to Done."
 - **Period**, **Periods to show** (0 = everything), **Last period** (today or the last change), **Week starts on**.
-- **Chart style**: stacked bars, stacked area, or one line per status. **Show totals** writes the total on top
-  (or adds a dashed Total line in line style).
+- **Chart style**: *Stacked columns* (statuses on top of each other), *Columns* (statuses side by side in each
+  period), *Stacked area*, or *Lines* (one per status). **Show totals** writes the period total above each column or
+  group (or adds a dashed Total line in line style).
+- **Style switcher**: **Show style switcher** puts a row of buttons above the chart so users can change the style on
+  the page. **Offer ...** picks which styles get a button (the Chart style is always one of them, and is the style
+  the chart starts with). **Remember choice** keeps each user's pick in the browser, per widget name. On narrow
+  screens the buttons show icons only.
 
 ### Statuses tab
 
@@ -82,7 +87,7 @@ Clicking a status in the legend hides it; the totals update.
 
 ```
 npm install
-npm run build      # dev build  -> dist\1.1.0\digei.StatusTimelineChart.mpk
+npm run build      # dev build  -> dist\1.2.0\digei.StatusTimelineChart.mpk
 npm run release    # minified build (use this for the app)
 npm test           # unit tests for the counting logic
 npm run lint

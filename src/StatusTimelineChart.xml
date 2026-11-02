@@ -108,9 +108,10 @@
             <propertyGroup caption="Appearance">
                 <property key="chartStyle" type="enumeration" defaultValue="bars">
                     <caption>Chart style</caption>
-                    <description>Stacked bars: one bar per period, split by status (best for totals). Stacked area: the same as a filled area. Lines: one line per status (best for comparing statuses).</description>
+                    <description>Stacked columns: one column per period, split by status (best for totals). Columns: one column per status, side by side in each period (best for comparing statuses in a period). Stacked area: a filled area over time. Lines: one line per status. With the style switcher on, this is the style the chart starts with.</description>
                     <enumerationValues>
-                        <enumerationValue key="bars">Stacked bars</enumerationValue>
+                        <enumerationValue key="bars">Stacked columns</enumerationValue>
+                        <enumerationValue key="columns">Columns</enumerationValue>
                         <enumerationValue key="area">Stacked area</enumerationValue>
                         <enumerationValue key="lines">Lines</enumerationValue>
                     </enumerationValues>
@@ -125,11 +126,37 @@
                 </property>
                 <property key="showTotal" type="boolean" defaultValue="true">
                     <caption>Show totals</caption>
-                    <description>Stacked styles: writes the total on top of each period. Lines: adds a dashed "Total" line.</description>
+                    <description>Stacked styles and Columns: writes the total of each period above it. Lines: adds a dashed "Total" line.</description>
                 </property>
                 <property key="showGrid" type="boolean" defaultValue="true">
                     <caption>Show grid lines</caption>
                     <description>Light horizontal lines behind the chart to help read values.</description>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Style switcher">
+                <property key="showSwitcher" type="boolean" defaultValue="false">
+                    <caption>Show style switcher</caption>
+                    <description>Shows a row of buttons above the chart so users can switch between chart styles on the page. Off: the chart always uses "Chart style".</description>
+                </property>
+                <property key="offerBars" type="boolean" defaultValue="true">
+                    <caption>Offer stacked columns</caption>
+                    <description>Show a "Stacked columns" button in the style switcher.</description>
+                </property>
+                <property key="offerColumns" type="boolean" defaultValue="true">
+                    <caption>Offer columns</caption>
+                    <description>Show a "Columns" (side by side) button in the style switcher.</description>
+                </property>
+                <property key="offerArea" type="boolean" defaultValue="true">
+                    <caption>Offer stacked area</caption>
+                    <description>Show a "Stacked area" button in the style switcher.</description>
+                </property>
+                <property key="offerLines" type="boolean" defaultValue="true">
+                    <caption>Offer lines</caption>
+                    <description>Show a "Lines" button in the style switcher.</description>
+                </property>
+                <property key="rememberStyle" type="boolean" defaultValue="true">
+                    <caption>Remember choice</caption>
+                    <description>The browser remembers the style each user picked for this widget (by its name), also after a page reload. Off: every page visit starts with "Chart style".</description>
                 </property>
             </propertyGroup>
         </propertyGroup>

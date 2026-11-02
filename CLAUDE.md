@@ -11,7 +11,8 @@ uses AuditLogging `LogLine` + `Log`, Log → Ticket, `Lane/Name`.)
 - `src\utils\periods.ts` – period start/add, ISO week, label formatter.
 - `src\components\StatusChart.tsx` – Chart.js rendering (totals plugin, tooltip).
 - `src\StatusTimelineChart.editorPreview.tsx` / `.editorConfig.ts` – Studio Pro preview, hide/validate settings.
-- `README.md` – user setup guide. Output: `dist\1.1.0\digei.StatusTimelineChart.mpk`.
+- `README.md` – user setup guide. Output: `dist\1.2.0\digei.StatusTimelineChart.mpk`.
+- `src\components\StyleSwitcher.tsx` + `src\utils\styles.ts` – on-page chart style switcher (v1.2.0).
 
 ## Gotchas
 - Tools 10.24.1 demand Node 22; laptop has Node 24, so npm scripts call rollup/jest directly (skips the check).

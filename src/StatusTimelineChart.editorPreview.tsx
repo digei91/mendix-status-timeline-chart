@@ -1,6 +1,7 @@
 import { ReactElement } from "react";
 import { StatusTimelineChartPreviewProps } from "../typings/StatusTimelineChartProps";
 import { PALETTE, GRID, TEXT_SECONDARY } from "./utils/colors";
+import { STYLE_LABELS } from "./components/StyleSwitcher";
 
 const SAMPLE_STATUSES = ["Open", "In progress", "Review", "Done"];
 const SAMPLE = [
@@ -25,10 +26,45 @@ export function preview(props: StatusTimelineChartPreviewProps): ReactElement {
     const slot = (width - 30) / SAMPLE.length;
     const barW = Math.min(40, slot * 0.6);
     const lineMode = props.chartStyle === "lines";
+    const columnMode = props.chartStyle === "columns";
+    const groupW = Math.min(64, slot * 0.8);
+    const colW = groupW / SAMPLE_STATUSES.length;
+    const switcher = props.showSwitcher
+        ? (["bars", "columns", "area", "lines"] as const).filter(
+              s =>
+                  s === props.chartStyle ||
+                  {
+                      bars: props.offerBars,
+                      columns: props.offerColumns,
+                      area: props.offerArea,
+                      lines: props.offerLines
+                  }[s]
+          )
+        : [];
 
     return (
         <div className={props.className} style={{ width: "100%" }}>
-            {props.title ? <div style={{ fontWeight: 600, marginBottom: 6 }}>{props.title}</div> : null}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <span style={{ fontWeight: 600 }}>{props.title}</span>
+                {switcher.length > 1 ? (
+                    <span style={{ display: "inline-flex", border: `1px solid ${GRID}`, borderRadius: 6, padding: 2 }}>
+                        {switcher.map(s => (
+                            <span
+                                key={s}
+                                style={{
+                                    padding: "2px 8px",
+                                    fontSize: 11,
+                                    borderRadius: 4,
+                                    color: TEXT_SECONDARY,
+                                    background: s === props.chartStyle ? "#ebeae6" : "transparent"
+                                }}
+                            >
+                                {STYLE_LABELS[s]}
+                            </span>
+                        ))}
+                    </span>
+                ) : null}
+            </div>
             <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height}>
                 <line x1={30} x2={width} y1={plotBottom} y2={plotBottom} stroke={GRID} />
                 {[0.5, 1].map(f => (
@@ -41,7 +77,22 @@ export function preview(props: StatusTimelineChartPreviewProps): ReactElement {
                         stroke={GRID}
                     />
                 ))}
-                {lineMode
+                {columnMode
+                    ? SAMPLE.map((row, i) => (
+                          <g key={i}>
+                              {row.map((v, status) => (
+                                  <rect
+                                      key={status}
+                                      x={30 + slot * i + (slot - groupW) / 2 + status * colW}
+                                      y={plotBottom - v * lineScale}
+                                      width={colW - 1}
+                                      height={v * lineScale}
+                                      fill={PALETTE[status]}
+                                  />
+                              ))}
+                          </g>
+                      ))
+                    : lineMode
                     ? SAMPLE_STATUSES.map((_, status) => (
                           <polyline
                               key={status}

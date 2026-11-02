@@ -47,14 +47,17 @@ const base = {
     chartStyle: "bars", height: 300, showTotal: true, showGrid: true,
     statusColors: "", hiddenStatuses: "", statusOrder: "", dateFormat: "",
     showLegend: true, legendPosition: "bottom",
+    showSwitcher: false, offerBars: true, offerColumns: true, offerArea: true, offerLines: true, rememberStyle: false,
     yAxisTitle: text("Items")
 };
 
 const variants = [
-    { title: text("1. Snapshot per month, stacked bars (default settings)") },
+    { title: text("1. Snapshot per month, stacked columns (default settings)") },
     { title: text("2. Snapshot, Done hidden, custom colors"), hiddenStatuses: "Done", statusColors: "Open=#E74C3C; In progress=#F39C12; Review=#8E44AD" },
     { title: text("3. Changes per week, lines + total, last 16 weeks"), mode: "moves", period: "week", periodCount: 16, chartStyle: "lines", legendPosition: "top" },
-    { title: text("4. Snapshot per quarter, stacked area, no Statuses list"), period: "quarter", periodCount: 4, chartStyle: "area", statuses: undefined, statusName: undefined, statusValue: attr(lineIx, r => STATUSES.find(l => r.newValue.includes(l.id)).name), statusOrder: "Open; In progress; Review; Done", legendPosition: "right" }
+    { title: text("4. Snapshot per quarter, stacked area, no Statuses list"), period: "quarter", periodCount: 4, chartStyle: "area", statuses: undefined, statusName: undefined, statusValue: attr(lineIx, r => STATUSES.find(l => r.newValue.includes(l.id)).name), statusOrder: "Open; In progress; Review; Done", legendPosition: "right" },
+    { title: text("5. Columns side by side, last 6 months"), chartStyle: "columns", periodCount: 6 },
+    { title: text("6. Style switcher (starts as stacked columns)"), name: "switcherDemo", showSwitcher: true, periodCount: 6 }
 ];
 
 const root = document.getElementById("root");
@@ -65,4 +68,10 @@ variants.forEach(v => {
     createRoot(cell).render(h(StatusTimelineChart, { ...base, ...v }));
 });
 window.__changeRows = changeRows.length;
+
+// ?click=Columns clicks that switcher button after rendering, to test switching
+const click = new URLSearchParams(location.search).get("click");
+if (click) {
+    setTimeout(() => document.querySelector(`.stc-switch[title="${click}"]`)?.click(), 600);
+}
 

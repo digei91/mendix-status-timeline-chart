@@ -1,8 +1,10 @@
-import { ReactElement, useMemo } from "react";
+import { ReactElement, useCallback, useMemo, useState } from "react";
 import { ListAttributeValue, ObjectItem, ValueStatus } from "mendix";
 
 import { StatusTimelineChartContainerProps } from "../typings/StatusTimelineChartProps";
-import { StatusChart, Series } from "./components/StatusChart";
+import { ChartStyle, StatusChart, Series } from "./components/StatusChart";
+import { StyleSwitcher } from "./components/StyleSwitcher";
+import { offeredStyles, readStoredStyle } from "./utils/styles";
 import { aggregate, ChangeRow, orderStatuses, parseColorMap, resolveStatus, splitList } from "./utils/aggregate";
 import { assignColors } from "./utils/colors";
 import { formatPeriod, WeekStart } from "./utils/periods";
@@ -34,6 +36,31 @@ function sessionLocale(): string | undefined {
 export function StatusTimelineChart(props: StatusTimelineChartContainerProps): ReactElement {
     const { changes, statuses } = props;
     const weekStart: WeekStart = props.weekStart === "sunday" ? 0 : 1;
+
+    const styles = offeredStyles(props.showSwitcher, props.chartStyle, {
+        bars: props.offerBars,
+        columns: props.offerColumns,
+        area: props.offerArea,
+        lines: props.offerLines
+    });
+    const storageKey = `stcChartStyle:${props.name}`;
+    const [picked, setPicked] = useState<ChartStyle | undefined>(() =>
+        props.rememberStyle ? readStoredStyle(storageKey, styles) : undefined
+    );
+    const chartStyle: ChartStyle = picked && styles.includes(picked) ? picked : props.chartStyle;
+    const pickStyle = useCallback(
+        (style: ChartStyle) => {
+            setPicked(style);
+            if (props.rememberStyle) {
+                try {
+                    window.localStorage.setItem(storageKey, style);
+                } catch {
+                    // storage blocked (private mode): the choice just lasts until the page is left
+                }
+            }
+        },
+        [props.rememberStyle, storageKey]
+    );
 
     const statusInfo = useMemo(() => {
         const idToName = new Map<string, string>();
@@ -126,7 +153,14 @@ export function StatusTimelineChart(props: StatusTimelineChartContainerProps): R
 
     return (
         <div className={["widget-status-timeline-chart", props.class].join(" ").trim()} style={props.style}>
-            {title ? <div className="stc-title">{title}</div> : null}
+            {title || styles.length > 1 ? (
+                <div className="stc-header">
+                    {title ? <div className="stc-title">{title}</div> : <span />}
+                    {styles.length > 1 ? (
+                        <StyleSwitcher styles={styles} active={chartStyle} onChange={pickStyle} />
+                    ) : null}
+                </div>
+            ) : null}
             {missingItemId ? (
                 <div className="stc-message stc-message-error">
                     &quot;Snapshot at period end&quot; needs the Item ID setting (Data tab) to know which changes belong
@@ -142,7 +176,7 @@ export function StatusTimelineChart(props: StatusTimelineChartContainerProps): R
                     <StatusChart
                         labels={chart.labels}
                         series={chart.series}
-                        chartStyle={props.chartStyle}
+                        chartStyle={chartStyle}
                         height={props.height}
                         showTotal={props.showTotal}
                         showGrid={props.showGrid}

@@ -9,6 +9,15 @@ export function getProperties(values: StatusTimelineChartPreviewProps, defaultPr
     if (!values.showLegend) {
         hidePropertyIn(defaultProperties, values, "legendPosition");
     }
+    if (!values.showSwitcher) {
+        hidePropertiesIn(defaultProperties, values, [
+            "offerBars",
+            "offerColumns",
+            "offerArea",
+            "offerLines",
+            "rememberStyle"
+        ]);
+    }
     if (!isSet(values.statuses)) {
         hidePropertiesIn(defaultProperties, values, ["statusName", "statusColor"]);
     } else {
@@ -29,6 +38,21 @@ export function check(values: StatusTimelineChartPreviewProps): Problem[] {
     }
     if (isSet(values.statuses) && !values.statusName) {
         problems.push({ property: "statusName", message: "Select the status name attribute for the Statuses list." });
+    }
+    if (values.showSwitcher) {
+        const offered = [
+            values.offerBars || values.chartStyle === "bars",
+            values.offerColumns || values.chartStyle === "columns",
+            values.offerArea || values.chartStyle === "area",
+            values.offerLines || values.chartStyle === "lines"
+        ].filter(Boolean).length;
+        if (offered < 2) {
+            problems.push({
+                property: "showSwitcher",
+                severity: "warning",
+                message: 'The style switcher needs at least two styles: tick more "Offer ..." settings.'
+            });
+        }
     }
     if (values.periodCount !== null && values.periodCount < 0) {
         problems.push({ property: "periodCount", message: "Periods to show must be 0 (everything) or more." });
