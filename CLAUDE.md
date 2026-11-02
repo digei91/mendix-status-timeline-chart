@@ -11,8 +11,10 @@ uses AuditLogging `LogLine` + `Log`, Log → Ticket, `Lane/Name`.)
 - `src\utils\periods.ts` – period start/add, ISO week, label formatter.
 - `src\components\StatusChart.tsx` – Chart.js rendering (totals plugin, tooltip).
 - `src\StatusTimelineChart.editorPreview.tsx` / `.editorConfig.ts` – Studio Pro preview, hide/validate settings.
-- `README.md` – user setup guide. Output: `dist\1.2.0\digei.StatusTimelineChart.mpk`.
+- `README.md` – user setup guide. Output: `dist\1.3.0\digei.StatusTimelineChart.mpk`.
 - `src\components\StyleSwitcher.tsx` + `src\utils\styles.ts` – on-page chart style switcher (v1.2.0).
+- `src\components\OptionsPanel.tsx` + `src\utils\choices.ts` – user options pop-up and saving (v1.3.0).
+- `assets\icon\*.svg` – Toolbox picture sources; PNGs in `src\StatusTimelineChart.{icon,tile}[.dark].png`.
 
 ## Gotchas
 - Tools 10.24.1 demand Node 22; laptop has Node 24, so npm scripts call rollup/jest directly (skips the check).
@@ -20,8 +22,10 @@ uses AuditLogging `LogLine` + `Log`, Log → Ticket, `Lane/Name`.)
   `npm pack`. Redo that after a fresh `npm install` if the build fails with "Cannot find module ...lzma".
 - Files written by Python on Windows get CRLF; run prettier --write before lint.
 - Studio Pro shows line breaks inside XML captions/descriptions literally (indented text, hidden radio labels):
-  keep each on one line. prettier.config.js sets printWidth 1000 for *.xml.
+  keep each on one line. prettier.config.js sets printWidth 1000 for *.xml. Keep descriptions <= ~120 chars:
+  Studio Pro shows about two lines and longer text overlaps the next setting.
 - ESLint 9 + .eslintrc.js: run eslint with ESLINT_USE_FLAT_CONFIG=false (plain `npm run lint` crashes).
+- Harness params: ?click=Lines, ?open=1 (or =2), ?demo=1, ?probe=1 (overflow check), ?w=320 (narrow width).
 - Visual test: `tests\harness` (index.html widget, preview.html Studio Pro preview, cdp-hover.mjs for hover
   screenshots with headless Edge).
 

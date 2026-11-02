@@ -1,8 +1,13 @@
 # STATUS - Mendix Chart Widget
 
-_Updated 2026-11-02 (v1.2.0). Keep this short: replace, don't append (history goes in HISTORY.md)._
+_Updated 2026-11-02 (v1.3.0). Keep this short: replace, don't append (history goes in HISTORY.md)._
 
 ## Current state
+- v1.3.0: user options pop-up (⚙ Options: counting, period, titles, date format, legend, chart style), new
+  "User options" tab (showSwitcher, showOptions, offer*, rememberChoices, saveIn browser|attribute,
+  choicesAttribute JSON keyed by widget name, onChoicesSaved). All tooltips <= ~116 chars (Studio Pro overlaps
+  longer ones). Toolbox icons (VectorCraft, assets\icon). `dist\1.3.0\digei.StatusTimelineChart.mpk`, 20 tests,
+  lint clean, screenshots OK. Pushed 2026-11-02 (repo holds only the latest .mpk). Note: rememberStyle (v1.2.0) was renamed rememberChoices.
 - v1.2.0: new chart style "Columns" (side by side, key `columns`; "Stacked bars" renamed "Stacked columns", key
   still `bars`) + on-page style switcher (showSwitcher, offerBars/Columns/Area/Lines, rememberStyle in localStorage
   key `stcChartStyle:<widget name>`). `dist\1.2.0\digei.StatusTimelineChart.mpk`. 17 tests, lint clean.

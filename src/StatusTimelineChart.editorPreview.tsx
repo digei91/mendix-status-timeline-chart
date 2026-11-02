@@ -45,7 +45,7 @@ export function preview(props: StatusTimelineChartPreviewProps): ReactElement {
     return (
         <div className={props.className} style={{ width: "100%" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                <span style={{ fontWeight: 600 }}>{props.title}</span>
+                <span style={{ fontWeight: 600, marginRight: "auto" }}>{props.title}</span>
                 {switcher.length > 1 ? (
                     <span style={{ display: "inline-flex", border: `1px solid ${GRID}`, borderRadius: 6, padding: 2 }}>
                         {switcher.map(s => (
@@ -62,6 +62,20 @@ export function preview(props: StatusTimelineChartPreviewProps): ReactElement {
                                 {STYLE_LABELS[s]}
                             </span>
                         ))}
+                    </span>
+                ) : null}
+                {props.showOptions ? (
+                    <span
+                        style={{
+                            marginLeft: 6,
+                            padding: "2px 8px",
+                            fontSize: 11,
+                            border: `1px solid ${GRID}`,
+                            borderRadius: 6,
+                            color: TEXT_SECONDARY
+                        }}
+                    >
+                        &#9881; Options
                     </span>
                 ) : null}
             </div>

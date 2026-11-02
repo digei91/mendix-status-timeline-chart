@@ -9,14 +9,21 @@ export function getProperties(values: StatusTimelineChartPreviewProps, defaultPr
     if (!values.showLegend) {
         hidePropertyIn(defaultProperties, values, "legendPosition");
     }
-    if (!values.showSwitcher) {
+    if (!values.showSwitcher && !values.showOptions) {
         hidePropertiesIn(defaultProperties, values, [
             "offerBars",
             "offerColumns",
             "offerArea",
             "offerLines",
-            "rememberStyle"
+            "rememberChoices",
+            "saveIn",
+            "choicesAttribute",
+            "onChoicesSaved"
         ]);
+    } else if (!values.rememberChoices) {
+        hidePropertiesIn(defaultProperties, values, ["saveIn", "choicesAttribute", "onChoicesSaved"]);
+    } else if (values.saveIn !== "attribute") {
+        hidePropertiesIn(defaultProperties, values, ["choicesAttribute", "onChoicesSaved"]);
     }
     if (!isSet(values.statuses)) {
         hidePropertiesIn(defaultProperties, values, ["statusName", "statusColor"]);
@@ -50,9 +57,17 @@ export function check(values: StatusTimelineChartPreviewProps): Problem[] {
             problems.push({
                 property: "showSwitcher",
                 severity: "warning",
-                message: 'The style switcher needs at least two styles: tick more "Offer ..." settings.'
+                message: 'The style switcher needs at least two styles: tick more under "Styles users may pick".'
             });
         }
+    }
+    const userOptions = values.showSwitcher || values.showOptions;
+    if (userOptions && values.rememberChoices && values.saveIn === "attribute" && !values.choicesAttribute) {
+        problems.push({
+            property: "choicesAttribute",
+            message:
+                'Select an unlimited String attribute to save user choices in (put the widget in a data view), or set "Save choices in" to Browser.'
+        });
     }
     if (values.periodCount !== null && values.periodCount < 0) {
         problems.push({ property: "periodCount", message: "Periods to show must be 0 (everything) or more." });

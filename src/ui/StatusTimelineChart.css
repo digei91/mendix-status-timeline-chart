@@ -110,3 +110,185 @@
     white-space: nowrap;
     border: 0;
 }
+
+.widget-status-timeline-chart .stc-tools {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.widget-status-timeline-chart .stc-tools .stc-switcher {
+    margin-left: 0;
+}
+
+.widget-status-timeline-chart .stc-options-toggle {
+    border: 1px solid #e4e3df;
+    border-radius: 6px;
+    padding: 5px 10px;
+}
+
+.widget-status-timeline-chart .stc-options-anchor {
+    position: relative;
+}
+
+/* floating pop-up under the Options button; it covers the chart instead of pushing it down */
+.widget-status-timeline-chart .stc-popup {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 20;
+    width: min(540px, 100cqw);
+    max-height: 70vh;
+    overflow: auto;
+    border: 1px solid #e4e3df;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+}
+
+/* while the pop-up is open the widget sits above the content that follows it on the page */
+.widget-status-timeline-chart.stc-open {
+    position: relative;
+    z-index: 30;
+}
+
+.widget-status-timeline-chart .stc-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px 16px;
+    background: #ffffff;
+    color: #0b0b0b;
+    font-size: 0.9em;
+}
+
+/* groups flow top-down in up to two columns, so short groups share a column */
+.widget-status-timeline-chart .stc-options-groups {
+    columns: 2 220px;
+    column-gap: 20px;
+}
+
+.widget-status-timeline-chart .stc-options fieldset {
+    break-inside: avoid;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    margin: 0 0 14px;
+    padding: 0;
+    border: 0;
+}
+
+.widget-status-timeline-chart .stc-options legend {
+    margin-bottom: 8px;
+    padding: 0;
+    font-weight: 600;
+    font-size: 1em;
+    color: #0b0b0b;
+}
+
+.widget-status-timeline-chart .stc-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.widget-status-timeline-chart .stc-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.widget-status-timeline-chart .stc-field > label,
+.widget-status-timeline-chart .stc-field > span {
+    color: #52514e;
+}
+
+.widget-status-timeline-chart .stc-field input[type="text"],
+.widget-status-timeline-chart .stc-field input[type="number"],
+.widget-status-timeline-chart .stc-field select {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    height: 32px;
+    padding: 4px 8px;
+    border: 1px solid #cfcec9;
+    border-radius: 4px;
+    background: #ffffff;
+    color: #0b0b0b;
+    font: inherit;
+}
+
+.widget-status-timeline-chart .stc-field input:focus-visible,
+.widget-status-timeline-chart .stc-field select:focus-visible,
+.widget-status-timeline-chart .stc-btn:focus-visible,
+.widget-status-timeline-chart .stc-seg:focus-within {
+    outline: 2px solid #2a78d6;
+    outline-offset: 1px;
+}
+
+.widget-status-timeline-chart .stc-segmented {
+    display: flex;
+    padding: 2px;
+    border: 1px solid #e4e3df;
+    border-radius: 6px;
+    background: #f0efec;
+}
+
+.widget-status-timeline-chart .stc-seg {
+    flex: 1 1 0;
+    padding: 4px 8px;
+    border-radius: 4px;
+    text-align: center;
+    color: #52514e;
+    cursor: pointer;
+}
+
+.widget-status-timeline-chart .stc-seg input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.widget-status-timeline-chart .stc-seg-active {
+    background: #ffffff;
+    color: #0b0b0b;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+.widget-status-timeline-chart .stc-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    color: #0b0b0b;
+}
+
+.widget-status-timeline-chart .stc-options-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.widget-status-timeline-chart .stc-btn {
+    padding: 6px 14px;
+    border: 1px solid #cfcec9;
+    border-radius: 4px;
+    background: #ffffff;
+    color: #0b0b0b;
+    font: inherit;
+    cursor: pointer;
+}
+
+.widget-status-timeline-chart .stc-btn:disabled {
+    color: #a3a29d;
+    cursor: default;
+}
+
+.widget-status-timeline-chart .stc-btn-primary {
+    border-color: #2a78d6;
+    background: #2a78d6;
+    color: #ffffff;
+}

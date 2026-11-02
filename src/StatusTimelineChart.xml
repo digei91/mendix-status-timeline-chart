@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!-- Keep every caption and description on ONE line: Studio Pro shows line breaks and indentation literally. -->
+<!-- Keep descriptions short (about 130 characters): Studio Pro leaves room for about two lines, longer text overlaps the next setting. -->
 <widget id="digei.statustimelinechart.StatusTimelineChart" pluginWidget="true" needsEntityContext="false" offlineCapable="true" supportedPlatform="Web" xmlns="http://www.mendix.com/widget/1.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mendix.com/widget/1.0/ ../node_modules/mendix/custom_widget.xsd">
     <name>Status Timeline Chart</name>
-    <description>Counts items per status per period from a list of status changes and shows the result as stacked bars, a stacked area or lines. No helper entities or microflows needed.</description>
+    <description>Counts items per status per period from a list of status changes and shows them as columns, an area or lines.</description>
     <studioProCategory>Charts</studioProCategory>
     <studioCategory>Charts</studioCategory>
     <properties>
@@ -10,18 +11,18 @@
             <propertyGroup caption="Status changes">
                 <property key="changes" type="datasource" isList="true" required="true">
                     <caption>Status changes</caption>
-                    <description>The list of status-change records, one object per change (e.g. an audit or history entity). Use an XPath constraint to keep only status changes and to limit the time span: all matching objects are loaded.</description>
+                    <description>One object per status change. Use XPath to keep only status changes and limit the time span: all matches are loaded.</description>
                 </property>
                 <property key="changeDate" type="attribute" dataSource="changes" required="true">
                     <caption>Change date</caption>
-                    <description>When the change happened (may be reached over an association). Each change is placed in the period that contains this date.</description>
+                    <description>When the change happened (may be over an association). Decides the period of the change.</description>
                     <attributeTypes>
                         <attributeType name="DateTime" />
                     </attributeTypes>
                 </property>
                 <property key="statusValue" type="attribute" dataSource="changes" required="true">
                     <caption>New status</caption>
-                    <description>The status the item moved INTO with this change. It may hold the status name or the status object's id: with the "Statuses" list filled in, ids are turned into names automatically.</description>
+                    <description>The status the item moved INTO: its name or its object id (ids become names via the Statuses list).</description>
                     <attributeTypes>
                         <attributeType name="String" />
                         <attributeType name="Enum" />
@@ -31,7 +32,7 @@
                 </property>
                 <property key="itemId" type="attribute" dataSource="changes" required="false">
                     <caption>Item ID</caption>
-                    <description>Something unique per item (e.g. its number), so the widget knows which changes belong to the same item. Required for "Snapshot at period end", not used by "Changes per period".</description>
+                    <description>Something unique per item, e.g. its number. Needed for "Snapshot at period end".</description>
                     <attributeTypes>
                         <attributeType name="String" />
                         <attributeType name="Integer" />
@@ -44,11 +45,11 @@
             <propertyGroup caption="Statuses (optional)">
                 <property key="statuses" type="datasource" isList="true" required="false">
                     <caption>Statuses</caption>
-                    <description>Optional list of all statuses, sorted the way you want them stacked (first = bottom). Turns status ids into names, sets the order in chart and legend, and shows statuses with 0 items.</description>
+                    <description>All statuses in stacking order (first = bottom). Maps ids to names, sets the order, shows statuses with 0 items.</description>
                 </property>
                 <property key="statusName" type="attribute" dataSource="statuses" required="false">
                     <caption>Status name</caption>
-                    <description>The display name of a status. Should match the text in "New status" when that holds names.</description>
+                    <description>The display name of a status. Should match "New status" when that holds names.</description>
                     <attributeTypes>
                         <attributeType name="String" />
                         <attributeType name="Enum" />
@@ -56,7 +57,7 @@
                 </property>
                 <property key="statusColor" type="attribute" dataSource="statuses" required="false">
                     <caption>Status color</caption>
-                    <description>Optional CSS color stored on the status object (e.g. #E74C3C). Wins over "Status colors" on the Statuses tab.</description>
+                    <description>Optional CSS color on the status object, e.g. #E74C3C. Wins over "Status colors".</description>
                     <attributeTypes>
                         <attributeType name="String" />
                     </attributeTypes>
@@ -67,7 +68,7 @@
             <propertyGroup caption="Counting">
                 <property key="mode" type="enumeration" defaultValue="snapshot">
                     <caption>What to count</caption>
-                    <description>Snapshot: how many items were in each status at the END of each period (each item counted once, in the status of its latest change). Changes: how many changes INTO each status happened in each period.</description>
+                    <description>Snapshot: items in each status at the END of each period. Changes: moves INTO each status during each period.</description>
                     <enumerationValues>
                         <enumerationValue key="snapshot">Snapshot at period end</enumerationValue>
                         <enumerationValue key="moves">Changes per period</enumerationValue>
@@ -75,7 +76,7 @@
                 </property>
                 <property key="period" type="enumeration" defaultValue="month">
                     <caption>Period</caption>
-                    <description>The size of one bar or point on the time axis.</description>
+                    <description>How much time one column or point covers.</description>
                     <enumerationValues>
                         <enumerationValue key="day">Day</enumerationValue>
                         <enumerationValue key="week">Week</enumerationValue>
@@ -86,11 +87,11 @@
                 </property>
                 <property key="periodCount" type="integer" defaultValue="12">
                     <caption>Periods to show</caption>
-                    <description>How many periods to show, counting back from the last one (Month + 12 = the last 12 months). 0 shows everything from the first change on.</description>
+                    <description>How many periods back from the last one (Month + 12 = last 12 months). 0 = everything.</description>
                 </property>
                 <property key="endAt" type="enumeration" defaultValue="today">
                     <caption>Last period</caption>
-                    <description>Today: the chart ends with the current period, also when nothing changed recently. Last change: it ends with the period of the newest change in the data.</description>
+                    <description>Today: ends with the current period. Last change: ends with the period of the newest change.</description>
                     <enumerationValues>
                         <enumerationValue key="today">Current period (today)</enumerationValue>
                         <enumerationValue key="lastChange">Period of the last change</enumerationValue>
@@ -108,7 +109,7 @@
             <propertyGroup caption="Appearance">
                 <property key="chartStyle" type="enumeration" defaultValue="bars">
                     <caption>Chart style</caption>
-                    <description>Stacked columns: one column per period, split by status (best for totals). Columns: one column per status, side by side in each period (best for comparing statuses in a period). Stacked area: a filled area over time. Lines: one line per status. With the style switcher on, this is the style the chart starts with.</description>
+                    <description>Stacked columns: statuses on top of each other. Columns: side by side. Users can change it (User options tab).</description>
                     <enumerationValues>
                         <enumerationValue key="bars">Stacked columns</enumerationValue>
                         <enumerationValue key="columns">Columns</enumerationValue>
@@ -122,41 +123,15 @@
                 </property>
                 <property key="height" type="integer" defaultValue="360">
                     <caption>Height (px)</caption>
-                    <description>Height of the chart area in pixels. The width always follows the container.</description>
+                    <description>Height of the chart area in pixels. The width follows the container.</description>
                 </property>
                 <property key="showTotal" type="boolean" defaultValue="true">
                     <caption>Show totals</caption>
-                    <description>Stacked styles and Columns: writes the total of each period above it. Lines: adds a dashed "Total" line.</description>
+                    <description>Writes each period's total above it. Lines: adds a dashed "Total" line.</description>
                 </property>
                 <property key="showGrid" type="boolean" defaultValue="true">
                     <caption>Show grid lines</caption>
                     <description>Light horizontal lines behind the chart to help read values.</description>
-                </property>
-            </propertyGroup>
-            <propertyGroup caption="Style switcher">
-                <property key="showSwitcher" type="boolean" defaultValue="false">
-                    <caption>Show style switcher</caption>
-                    <description>Shows a row of buttons above the chart so users can switch between chart styles on the page. Off: the chart always uses "Chart style".</description>
-                </property>
-                <property key="offerBars" type="boolean" defaultValue="true">
-                    <caption>Offer stacked columns</caption>
-                    <description>Show a "Stacked columns" button in the style switcher.</description>
-                </property>
-                <property key="offerColumns" type="boolean" defaultValue="true">
-                    <caption>Offer columns</caption>
-                    <description>Show a "Columns" (side by side) button in the style switcher.</description>
-                </property>
-                <property key="offerArea" type="boolean" defaultValue="true">
-                    <caption>Offer stacked area</caption>
-                    <description>Show a "Stacked area" button in the style switcher.</description>
-                </property>
-                <property key="offerLines" type="boolean" defaultValue="true">
-                    <caption>Offer lines</caption>
-                    <description>Show a "Lines" button in the style switcher.</description>
-                </property>
-                <property key="rememberStyle" type="boolean" defaultValue="true">
-                    <caption>Remember choice</caption>
-                    <description>The browser remembers the style each user picked for this widget (by its name), also after a page reload. Off: every page visit starts with "Chart style".</description>
                 </property>
             </propertyGroup>
         </propertyGroup>
@@ -164,15 +139,15 @@
             <propertyGroup caption="Colors and visibility">
                 <property key="statusColors" type="string" required="false">
                     <caption>Status colors</caption>
-                    <description>Optional fixed colors per status name, separated by ";", e.g. Open=#E74C3C; Done=#27AE60. Other statuses get the default palette.</description>
+                    <description>Fixed colors per status, separated by ";", e.g. Open=#E74C3C; Done=#27AE60. Others use the palette.</description>
                 </property>
                 <property key="hiddenStatuses" type="string" required="false">
                     <caption>Hide statuses</caption>
-                    <description>Status names to leave out, separated by ";", e.g. Done; Cancelled. Use (empty) for changes without a status.</description>
+                    <description>Statuses to leave out, separated by ";", e.g. Done; Cancelled. (empty) = changes without a status.</description>
                 </property>
                 <property key="statusOrder" type="string" required="false">
                     <caption>Status order</caption>
-                    <description>Stacking order when no "Statuses" list is set, separated by ";" (first = bottom). Statuses not listed come after, alphabetically.</description>
+                    <description>Stacking order without a Statuses list, separated by ";" (first = bottom). Others follow alphabetically.</description>
                 </property>
             </propertyGroup>
         </propertyGroup>
@@ -188,13 +163,13 @@
                 </property>
                 <property key="dateFormat" type="string" required="false">
                     <caption>Date label format</caption>
-                    <description>Optional format of the period labels; empty = automatic. Tokens: d, dd, MMM, MMMM, MM, yy, yyyy, W (week), Q (quarter). Text in quotes is kept, e.g. 'Week' W.</description>
+                    <description>Empty = automatic. Tokens: d dd MMM MMMM MM yy yyyy W (week) Q (quarter); 'text' in quotes is kept.</description>
                 </property>
             </propertyGroup>
             <propertyGroup caption="Legend">
                 <property key="showLegend" type="boolean" defaultValue="true">
                     <caption>Show legend</caption>
-                    <description>Shows which color belongs to which status. Click a status in the legend to hide or show it.</description>
+                    <description>Shows the color of each status. Clicking a status in the legend hides or shows it.</description>
                 </property>
                 <property key="legendPosition" type="enumeration" defaultValue="bottom">
                     <caption>Legend position</caption>
@@ -205,6 +180,61 @@
                         <enumerationValue key="left">Left</enumerationValue>
                         <enumerationValue key="right">Right</enumerationValue>
                     </enumerationValues>
+                </property>
+            </propertyGroup>
+        </propertyGroup>
+        <propertyGroup caption="User options">
+            <propertyGroup caption="On the page">
+                <property key="showSwitcher" type="boolean" defaultValue="false">
+                    <caption>Show style switcher</caption>
+                    <description>Buttons above the chart to switch the chart style.</description>
+                </property>
+                <property key="showOptions" type="boolean" defaultValue="false">
+                    <caption>Show options button</caption>
+                    <description>An Options button that opens a panel to change counting, period, titles and legend. Settings here are the defaults.</description>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Styles users may pick">
+                <property key="offerBars" type="boolean" defaultValue="true">
+                    <caption>Stacked columns</caption>
+                    <description>Users may pick "Stacked columns". The Chart style setting is always allowed.</description>
+                </property>
+                <property key="offerColumns" type="boolean" defaultValue="true">
+                    <caption>Columns</caption>
+                    <description>Users may pick "Columns" (side by side).</description>
+                </property>
+                <property key="offerArea" type="boolean" defaultValue="true">
+                    <caption>Stacked area</caption>
+                    <description>Users may pick "Stacked area".</description>
+                </property>
+                <property key="offerLines" type="boolean" defaultValue="true">
+                    <caption>Lines</caption>
+                    <description>Users may pick "Lines".</description>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Saving">
+                <property key="rememberChoices" type="boolean" defaultValue="true">
+                    <caption>Remember user choices</caption>
+                    <description>Keeps what users picked, also after a reload. Off: every visit starts with the settings above.</description>
+                </property>
+                <property key="saveIn" type="enumeration" defaultValue="browser">
+                    <caption>Save choices in</caption>
+                    <description>Browser: per user and browser, no setup. Database: follows the user to every device (needs a data view).</description>
+                    <enumerationValues>
+                        <enumerationValue key="browser">Browser</enumerationValue>
+                        <enumerationValue key="attribute">Database attribute</enumerationValue>
+                    </enumerationValues>
+                </property>
+                <property key="choicesAttribute" type="attribute" required="false">
+                    <caption>Choices attribute</caption>
+                    <description>Unlimited String on the data view's object (e.g. the user's preferences). Holds JSON for all widgets by name.</description>
+                    <attributeTypes>
+                        <attributeType name="String" />
+                    </attributeTypes>
+                </property>
+                <property key="onChoicesSaved" type="action" required="false">
+                    <caption>On choices changed</caption>
+                    <description>Runs after the attribute was updated, e.g. a nanoflow that commits the object.</description>
                 </property>
             </propertyGroup>
         </propertyGroup>

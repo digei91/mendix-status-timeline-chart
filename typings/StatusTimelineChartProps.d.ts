@@ -3,7 +3,7 @@
  * WARNING: All changes made to this file will be overwritten
  * @author Mendix Widgets Framework Team
  */
-import { DynamicValue, ListAttributeValue, ListValue } from "mendix";
+import { ActionValue, DynamicValue, EditableValue, ListAttributeValue, ListValue } from "mendix";
 import { Big } from "big.js";
 import { CSSProperties } from "react";
 
@@ -18,6 +18,8 @@ export type WeekStartEnum = "monday" | "sunday";
 export type ChartStyleEnum = "bars" | "columns" | "area" | "lines";
 
 export type LegendPositionEnum = "top" | "bottom" | "left" | "right";
+
+export type SaveInEnum = "browser" | "attribute";
 
 export interface StatusTimelineChartContainerProps {
     name: string;
@@ -41,12 +43,6 @@ export interface StatusTimelineChartContainerProps {
     height: number;
     showTotal: boolean;
     showGrid: boolean;
-    showSwitcher: boolean;
-    offerBars: boolean;
-    offerColumns: boolean;
-    offerArea: boolean;
-    offerLines: boolean;
-    rememberStyle: boolean;
     statusColors: string;
     hiddenStatuses: string;
     statusOrder: string;
@@ -55,6 +51,16 @@ export interface StatusTimelineChartContainerProps {
     dateFormat: string;
     showLegend: boolean;
     legendPosition: LegendPositionEnum;
+    showSwitcher: boolean;
+    showOptions: boolean;
+    offerBars: boolean;
+    offerColumns: boolean;
+    offerArea: boolean;
+    offerLines: boolean;
+    rememberChoices: boolean;
+    saveIn: SaveInEnum;
+    choicesAttribute?: EditableValue<string>;
+    onChoicesSaved?: ActionValue;
 }
 
 export interface StatusTimelineChartPreviewProps {
@@ -85,12 +91,6 @@ export interface StatusTimelineChartPreviewProps {
     height: number | null;
     showTotal: boolean;
     showGrid: boolean;
-    showSwitcher: boolean;
-    offerBars: boolean;
-    offerColumns: boolean;
-    offerArea: boolean;
-    offerLines: boolean;
-    rememberStyle: boolean;
     statusColors: string;
     hiddenStatuses: string;
     statusOrder: string;
@@ -99,4 +99,14 @@ export interface StatusTimelineChartPreviewProps {
     dateFormat: string;
     showLegend: boolean;
     legendPosition: LegendPositionEnum;
+    showSwitcher: boolean;
+    showOptions: boolean;
+    offerBars: boolean;
+    offerColumns: boolean;
+    offerArea: boolean;
+    offerLines: boolean;
+    rememberChoices: boolean;
+    saveIn: SaveInEnum;
+    choicesAttribute: string;
+    onChoicesSaved: {} | null;
 }

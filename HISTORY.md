@@ -26,3 +26,11 @@
   StyleSwitcher component (segmented buttons with icons, icon-only under 520px container width, aria-pressed),
   settings group "Style switcher", utils/styles.ts + 3 tests. Verified: 17 tests, lint, harness screenshots incl.
   ?click=Lines / ?click=Columns, narrow view, Studio Pro preview with switcher.
+- v1.3.0: user wanted users to change most settings on the page (photos). Added utils/choices.ts (validate,
+  merge, changed-only, browser localStorage `stcChoices:<name>` or JSON in a String attribute shared by widgets)
+  + tests (20), OptionsPanel as a floating pop-up (outside click / Esc closes, two flowing columns, one column on
+  phones), User options tab, editorConfig hides/validates saving settings. Photos showed long tooltips overlapping
+  the next setting: all descriptions shortened to <= ~116 chars. Toolbox icons drawn as SVG and exported with
+  VectorCraft (it may only write to C:\Projects\Content, so export to Craft Output\stc-icons, then copy).
+  Verified: harness ?demo=1 (values change chart), DB mock JSON + action ran once, reload keeps browser choices,
+  ?w=320 probe: nothing overflows.

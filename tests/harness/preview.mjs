@@ -11,5 +11,5 @@ const base = { className: "", height: 300, showLegend: true, title: "Items per s
     const cell = document.createElement("div");
     cell.className = "cell";
     document.getElementById("root").appendChild(cell);
-    createRoot(cell).render(module.exports.preview({ ...base, chartStyle, showSwitcher, offerBars: true, offerColumns: true, offerArea: false, offerLines: true }));
+    createRoot(cell).render(module.exports.preview({ ...base, chartStyle, showSwitcher, offerBars: true, offerColumns: true, offerArea: false, offerLines: true, showOptions: showSwitcher }));
 });

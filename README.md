@@ -4,7 +4,7 @@ Shows how many items are in each status per day / week / month / quarter / year,
 status-change records (an audit log, a history entity, ...). No helper entities, no microflows. Every setting has a
 tooltip in Studio Pro.
 
-Widget file: `dist\1.2.0\digei.StatusTimelineChart.mpk`
+Widget file: `dist\1.3.0\digei.StatusTimelineChart.mpk`
 
 ## Install
 
@@ -59,10 +59,30 @@ on the change entity's parent (or the change entity itself) and pick that.
 - **Chart style**: *Stacked columns* (statuses on top of each other), *Columns* (statuses side by side in each
   period), *Stacked area*, or *Lines* (one per status). **Show totals** writes the period total above each column or
   group (or adds a dashed Total line in line style).
-- **Style switcher**: **Show style switcher** puts a row of buttons above the chart so users can change the style on
-  the page. **Offer ...** picks which styles get a button (the Chart style is always one of them, and is the style
-  the chart starts with). **Remember choice** keeps each user's pick in the browser, per widget name. On narrow
-  screens the buttons show icons only.
+
+### User options tab
+
+Lets the people using the app change the chart on the page. The settings in the other tabs are the starting values.
+
+- **Show style switcher**: buttons above the chart to switch the chart style (icons only on narrow screens).
+- **Show options button**: a ⚙ button that opens a small pop-up with What to count, Period, Periods to show, Last
+  period, Chart style, Title, X/Y axis titles, Date label format, Show legend and Legend position. Changes show
+  right away; **Reset to defaults** goes back to the Studio Pro values. The pop-up closes on a click outside or Esc.
+- **Styles users may pick**: which styles the switcher and the pop-up offer (the Chart style is always allowed).
+- **Remember user choices**: keep what each user picked, also after a reload.
+- **Save choices in**:
+  - *Browser* (default): nothing to set up. Per user and per browser, so another PC starts from the defaults.
+  - *Database attribute*: follows the user to every device. Setup:
+    1. Add an entity, e.g. `ChartPreferences`, with an **unlimited String** attribute `Choices` and an association
+       to `Administration.Account` (or `System.User`).
+    2. Put the widget inside a **data view** whose data source is a nanoflow/microflow that returns the current
+       user's `ChartPreferences` object (create it the first time).
+    3. **Choices attribute** = `Choices`; **On choices changed** = a nanoflow that commits the object.
+    One attribute can serve all charts: it holds JSON keyed by widget name, e.g.
+    `{"chartPerMonth": {"period": "week"}, "chartPerTeam": {"showLegend": false}}`.
+
+Only values that differ from the Studio Pro settings are stored, so later changes in Studio Pro still reach users who
+never touched that setting.
 
 ### Statuses tab
 
@@ -78,6 +98,9 @@ Clicking a status in the legend hides it; the totals update.
 
 ## Notes
 
+- The widget has its own Toolbox picture (stacked columns on a time axis), for light and dark Studio Pro.
+  Sources: `assets\icon\*.svg`, exported with VectorCraft to `src\StatusTimelineChart.{icon,tile}[.dark].png`.
+
 - All objects of the data source are loaded (no paging), so filter with XPath for very large logs.
 - Deleted items are not removed from the snapshot (their last status keeps counting). Hide that status or filter
   them out with XPath if needed.
@@ -87,7 +110,7 @@ Clicking a status in the legend hides it; the totals update.
 
 ```
 npm install
-npm run build      # dev build  -> dist\1.2.0\digei.StatusTimelineChart.mpk
+npm run build      # dev build  -> dist\1.3.0\digei.StatusTimelineChart.mpk
 npm run release    # minified build (use this for the app)
 npm test           # unit tests for the counting logic
 npm run lint
