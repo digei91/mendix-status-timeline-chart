@@ -55,6 +55,7 @@ const base = {
     statusColors: "", hiddenStatuses: "", statusOrder: "", dateFormat: "",
     showLegend: true, legendPosition: "bottom",
     showSwitcher: false, offerBars: true, offerColumns: true, offerArea: true, offerLines: true, showOptions: false, rememberChoices: false, saveIn: "browser",
+    showExport: false, exportImage: true, exportCopy: true, exportCsv: true, exportPdf: true, exportFileName: "{title} - {date}", exportStamp: true,
     yAxisTitle: text("Items")
 };
 
@@ -65,12 +66,14 @@ const variants = [
     { title: text("4. Snapshot per quarter, stacked area, no Statuses list"), period: "quarter", periodCount: 4, chartStyle: "area", statuses: undefined, statusName: undefined, statusValue: attr(lineIx, r => STATUSES.find(l => r.newValue.includes(l.id)).name), statusOrder: "Open; In progress; Review; Done", legendPosition: "right" },
     { title: text("5. Columns side by side, last 6 months"), chartStyle: "columns", periodCount: 6 },
     { title: text("6. Style switcher (starts as stacked columns)"), name: "switcherDemo", showSwitcher: true, periodCount: 6 },
-    { title: text("7. Options panel (browser saving)"), name: "optionsDemo", showSwitcher: true, showOptions: true, rememberChoices: true, periodCount: 6, wide: true },
+    { title: text("7. Options panel (browser saving)"), name: "optionsDemo", showSwitcher: true, showOptions: true, showExport: true, rememberChoices: true, periodCount: 6, wide: true },
     { title: text("8. Options panel, saved in a database attribute"), name: "dbDemo", showOptions: true, rememberChoices: true, saveIn: "attribute", choicesAttribute: db, onChoicesSaved: saved, periodCount: 6, wide: true }
 ];
 
 const root = document.getElementById("root");
-variants.forEach(v => {
+// ?only=7 renders just that variant (for the export test)
+const only = Number(new URLSearchParams(location.search).get("only"));
+variants.filter((_, i) => !only || i === only - 1).forEach(v => {
     const cell = document.createElement("div");
     cell.className = v.wide ? "cell wide" : "cell";
     root.appendChild(cell);
@@ -94,7 +97,7 @@ function userSet(el, value) {
 function demo(cellIndex) {
     const cell = document.querySelectorAll(".cell")[cellIndex];
     const field = label => [...cell.querySelectorAll(".stc-field")].find(f => f.firstChild.textContent === label);
-    cell.querySelector(".stc-options-toggle").click();
+    cell.querySelector('[title="Chart options"]').click();
     setTimeout(() => {
         userSet(field("Period").querySelector("select"), "week");
         userSet(field("Periods to show").querySelector("input"), "10");
@@ -107,10 +110,10 @@ function demo(cellIndex) {
 // ?open=1 opens the options panels (no changes); ?demo=1 also changes values like a user
 if (params.get("open")) {
     const which = Number(params.get("open"));
-    setTimeout(() => [...document.querySelectorAll(".stc-options-toggle")].forEach((b, i) => (which > 1 && i !== which - 1 ? null : b.click())), 400);
+    setTimeout(() => [...document.querySelectorAll('[title="Chart options"]')].forEach((b, i) => (which > 1 && i !== which - 1 ? null : b.click())), 400);
 }
 if (params.get("demo")) {
-    setTimeout(() => demo(6), 400);
+    setTimeout(() => demo(only ? 0 : 6), 400);
 }
 
 

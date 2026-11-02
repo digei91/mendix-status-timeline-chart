@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useRef } from "react";
+import { MutableRefObject, ReactElement, useEffect, useImperativeHandle, useRef } from "react";
 import {
     BarController,
     BarElement,
@@ -52,6 +52,15 @@ export interface StatusChartProps {
     xAxisTitle?: string;
     yAxisTitle?: string;
     totalLabel?: string;
+    /** Filled with functions to export what is on screen (see ChartExporter). */
+    exporter?: MutableRefObject<ChartExporter | null>;
+}
+
+export interface ChartExporter {
+    /** Names of the statuses that are visible now (the legend can hide some). */
+    visibleNames(): string[];
+    /** The chart as it looks now, redrawn sharper, on white, with an optional title above and footer line below. */
+    toPng(extra: { title?: string; footer?: string; scale?: number }): Promise<Blob>;
 }
 
 const TOTAL_ID = "__total__";
@@ -283,6 +292,15 @@ export function StatusChart(props: StatusChartProps): ReactElement {
         const datasets = buildDatasets(props);
         const options = buildOptions(props);
         const chart = chartRef.current;
+        // statuses the user hid in the legend stay hidden when the widget redraws (new data, menus, style switch)
+        if (chart) {
+            const hidden = new Set(
+                chart.data.datasets.filter((_, i) => !chart.isDatasetVisible(i)).map(ds => ds.label)
+            );
+            datasets.forEach(ds => {
+                ds.hidden = hidden.has(ds.label);
+            });
+        }
         if (chart && styleRef.current === props.chartStyle) {
             chart.data.labels = props.labels;
             chart.data.datasets = datasets as Chart["data"]["datasets"];
@@ -309,10 +327,72 @@ export function StatusChart(props: StatusChartProps): ReactElement {
         []
     );
 
+    useImperativeHandle(props.exporter, () => ({
+        visibleNames: () => {
+            const chart = chartRef.current;
+            return props.series.filter((_, i) => !chart || chart.isDatasetVisible(i)).map(s => s.name);
+        },
+        toPng: extra => renderPng(props, chartRef.current, canvasRef.current, extra)
+    }));
+
     return (
         <div className="stc-canvas-wrap" style={{ height: props.height }}>
             <canvas ref={canvasRef} role="img" aria-label={describe(props)} />
         </div>
+    );
+}
+
+/** Draws the chart again on a detached canvas at a higher pixel ratio and adds title and footer. */
+function renderPng(
+    props: StatusChartProps,
+    chart: Chart | null,
+    canvas: HTMLCanvasElement | null,
+    extra: { title?: string; footer?: string; scale?: number }
+): Promise<Blob> {
+    const scale = extra.scale ?? 2;
+    const width = Math.max(320, canvas?.clientWidth || 800);
+    const height = Math.max(160, canvas?.clientHeight || props.height);
+
+    const plot = document.createElement("canvas");
+    plot.width = width;
+    plot.height = height;
+    const datasets = buildDatasets(props).map((ds, i) => ({
+        ...ds,
+        hidden: chart ? !chart.isDatasetVisible(i) : false
+    }));
+    const copy = new Chart(plot, {
+        type: props.chartStyle === "bars" || props.chartStyle === "columns" ? "bar" : "line",
+        data: { labels: props.labels, datasets: datasets as Array<ChartDataset<"bar" | "line", number[]>> },
+        options: { ...buildOptions(props), responsive: false, animation: false, devicePixelRatio: scale },
+        plugins: [totalLabelsPlugin]
+    });
+
+    const pad = 20 * scale;
+    const titleHeight = extra.title ? 34 * scale : 0;
+    const footerHeight = extra.footer ? 26 * scale : 0;
+    const out = document.createElement("canvas");
+    out.width = plot.width + 2 * pad;
+    out.height = plot.height + 2 * pad + titleHeight + footerHeight;
+    const ctx = out.getContext("2d")!;
+    const family = Chart.defaults.font.family;
+    ctx.fillStyle = SURFACE;
+    ctx.fillRect(0, 0, out.width, out.height);
+    if (extra.title) {
+        ctx.fillStyle = TEXT_PRIMARY;
+        ctx.font = `600 ${18 * scale}px ${family}`;
+        ctx.textBaseline = "top";
+        ctx.fillText(extra.title, pad, pad, out.width - 2 * pad);
+    }
+    ctx.drawImage(plot, pad, pad + titleHeight);
+    if (extra.footer) {
+        ctx.fillStyle = TEXT_SECONDARY;
+        ctx.font = `${11 * scale}px ${family}`;
+        ctx.textBaseline = "bottom";
+        ctx.fillText(extra.footer, pad, out.height - pad / 2, out.width - 2 * pad);
+    }
+    copy.destroy();
+    return new Promise((resolve, reject) =>
+        out.toBlob(blob => (blob ? resolve(blob) : reject(new Error("Could not create the image"))), "image/png")
     );
 }
 

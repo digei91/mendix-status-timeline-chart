@@ -4,7 +4,7 @@ Shows how many items are in each status per day / week / month / quarter / year,
 status-change records (an audit log, a history entity, ...). No helper entities, no microflows. Every setting has a
 tooltip in Studio Pro.
 
-Widget file: `dist\1.3.0\digei.StatusTimelineChart.mpk`
+Widget file: `dist\1.4.0\digei.StatusTimelineChart.mpk`
 
 ## Install
 
@@ -69,6 +69,15 @@ Lets the people using the app change the chart on the page. The settings in the 
   period, Chart style, Title, X/Y axis titles, Date label format, Show legend and Legend position. Changes show
   right away; **Reset to defaults** goes back to the Studio Pro values. The pop-up closes on a click outside or Esc.
 - **Styles users may pick**: which styles the switcher and the pop-up offer (the Chart style is always allowed).
+- **Export** (Show export button): an Export button with *Download image (PNG)*, *Copy image*, *Download data
+  (CSV)* and *Print or save as PDF*. Every export shows exactly what the user sees at that moment: the current
+  options, and without statuses hidden by clicking the legend.
+  - Image: the chart redrawn sharp (2x) on white, with title and an optional "Exported 2026-11-02 16:20 · Month ·
+    last 6 periods · Snapshot at period end" line (**Add "Exported on" line**).
+  - Copy image: needs https or localhost; otherwise the user gets a short message and can use Download image.
+  - CSV: `;` separated, UTF-8, opens directly in Excel; one row per period, one column per visible status + Total.
+  - Print/PDF: only this chart and its data table are printed; choose "Save as PDF" in the print dialog.
+  - **File name**: `{title}` and `{date}` are filled in, e.g. `Tickets per lane - 2026-11-02.png`.
 - **Remember user choices**: keep what each user picked, also after a reload.
 - **Save choices in**:
   - *Browser* (default): nothing to set up. Per user and per browser, so another PC starts from the defaults.
@@ -110,7 +119,7 @@ Clicking a status in the legend hides it; the totals update.
 
 ```
 npm install
-npm run build      # dev build  -> dist\1.3.0\digei.StatusTimelineChart.mpk
+npm run build      # dev build  -> dist\1.4.0\digei.StatusTimelineChart.mpk
 npm run release    # minified build (use this for the app)
 npm test           # unit tests for the counting logic
 npm run lint

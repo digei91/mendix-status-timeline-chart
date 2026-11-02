@@ -292,3 +292,50 @@
     background: #2a78d6;
     color: #ffffff;
 }
+
+/* export menu: a narrow pop-up list */
+.widget-status-timeline-chart .stc-menu {
+    width: max-content;
+    min-width: 200px;
+    max-width: 100cqw;
+    padding: 4px;
+}
+
+.widget-status-timeline-chart .stc-menu-item {
+    display: block;
+    width: 100%;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: #0b0b0b;
+    font: inherit;
+    font-size: 0.9em;
+    text-align: left;
+    cursor: pointer;
+}
+
+.widget-status-timeline-chart .stc-menu-item:hover,
+.widget-status-timeline-chart .stc-menu-item:focus-visible {
+    background: #f0efec;
+    outline: none;
+}
+
+.widget-status-timeline-chart .stc-switch:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+/* short message after copying ("Image copied") or a failed export */
+.widget-status-timeline-chart .stc-toast:not(:empty) {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 21;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: #0b0b0b;
+    color: #ffffff;
+    font-size: 0.85em;
+    white-space: nowrap;
+}

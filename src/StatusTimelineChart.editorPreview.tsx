@@ -64,6 +64,20 @@ export function preview(props: StatusTimelineChartPreviewProps): ReactElement {
                         ))}
                     </span>
                 ) : null}
+                {props.showExport ? (
+                    <span
+                        style={{
+                            marginLeft: 6,
+                            padding: "2px 8px",
+                            fontSize: 11,
+                            border: `1px solid ${GRID}`,
+                            borderRadius: 6,
+                            color: TEXT_SECONDARY
+                        }}
+                    >
+                        &#8615; Export
+                    </span>
+                ) : null}
                 {props.showOptions ? (
                     <span
                         style={{

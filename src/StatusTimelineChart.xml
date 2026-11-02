@@ -212,6 +212,36 @@
                     <description>Users may pick "Lines".</description>
                 </property>
             </propertyGroup>
+            <propertyGroup caption="Export">
+                <property key="showExport" type="boolean" defaultValue="false">
+                    <caption>Show export button</caption>
+                    <description>An Export button that saves what the user sees now: current settings and visible statuses only.</description>
+                </property>
+                <property key="exportImage" type="boolean" defaultValue="true">
+                    <caption>Download image</caption>
+                    <description>Offer "Download image (PNG)": the chart with title and legend, sharp, on white.</description>
+                </property>
+                <property key="exportCopy" type="boolean" defaultValue="true">
+                    <caption>Copy image</caption>
+                    <description>Offer "Copy image" to paste with Ctrl+V. Needs https (or localhost).</description>
+                </property>
+                <property key="exportCsv" type="boolean" defaultValue="true">
+                    <caption>Download data (CSV)</caption>
+                    <description>Offer the shown numbers as CSV for Excel: one row per period, one column per status, plus Total.</description>
+                </property>
+                <property key="exportPdf" type="boolean" defaultValue="true">
+                    <caption>Print or PDF</caption>
+                    <description>Offer printing only this chart with its data table; the print dialog can save as PDF.</description>
+                </property>
+                <property key="exportFileName" type="string" defaultValue="{title} - {date}" required="false">
+                    <caption>File name</caption>
+                    <description>Name of downloaded files without extension. {title} = chart title, {date} = e.g. 2026-11-02.</description>
+                </property>
+                <property key="exportStamp" type="boolean" defaultValue="true">
+                    <caption>Add "Exported on" line</caption>
+                    <description>Adds date, time, period and counting mode to the export, so it is clear what it shows.</description>
+                </property>
+            </propertyGroup>
             <propertyGroup caption="Saving">
                 <property key="rememberChoices" type="boolean" defaultValue="true">
                     <caption>Remember user choices</caption>

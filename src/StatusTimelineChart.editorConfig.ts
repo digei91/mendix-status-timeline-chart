@@ -25,6 +25,16 @@ export function getProperties(values: StatusTimelineChartPreviewProps, defaultPr
     } else if (values.saveIn !== "attribute") {
         hidePropertiesIn(defaultProperties, values, ["choicesAttribute", "onChoicesSaved"]);
     }
+    if (!values.showExport) {
+        hidePropertiesIn(defaultProperties, values, [
+            "exportImage",
+            "exportCopy",
+            "exportCsv",
+            "exportPdf",
+            "exportFileName",
+            "exportStamp"
+        ]);
+    }
     if (!isSet(values.statuses)) {
         hidePropertiesIn(defaultProperties, values, ["statusName", "statusColor"]);
     } else {
@@ -60,6 +70,13 @@ export function check(values: StatusTimelineChartPreviewProps): Problem[] {
                 message: 'The style switcher needs at least two styles: tick more under "Styles users may pick".'
             });
         }
+    }
+    if (values.showExport && !values.exportImage && !values.exportCopy && !values.exportCsv && !values.exportPdf) {
+        problems.push({
+            property: "showExport",
+            severity: "warning",
+            message: "The export button has nothing to offer: switch on at least one export format."
+        });
     }
     const userOptions = values.showSwitcher || values.showOptions;
     if (userOptions && values.rememberChoices && values.saveIn === "attribute" && !values.choicesAttribute) {

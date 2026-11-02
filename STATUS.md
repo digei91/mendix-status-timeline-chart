@@ -1,8 +1,11 @@
 # STATUS - Mendix Chart Widget
 
-_Updated 2026-11-02 (v1.3.0). Keep this short: replace, don't append (history goes in HISTORY.md)._
+_Updated 2026-11-02 (v1.4.0). Keep this short: replace, don't append (history goes in HISTORY.md)._
 
 ## Current state
+- v1.4.0: Export button (PNG, copy image, CSV, print/PDF) of exactly what is on screen; fixed: legend-hidden
+  statuses came back on every redraw. `dist\1.4.0\digei.StatusTimelineChart.mpk`, 24 tests, lint clean, export
+  test `tests\harness\cdp-export.mjs` passes. Pushed 2026-11-02.
 - v1.3.0: user options pop-up (⚙ Options: counting, period, titles, date format, legend, chart style), new
   "User options" tab (showSwitcher, showOptions, offer*, rememberChoices, saveIn browser|attribute,
   choicesAttribute JSON keyed by widget name, onChoicesSaved). All tooltips <= ~116 chars (Studio Pro overlaps
@@ -23,5 +26,6 @@ _Updated 2026-11-02 (v1.3.0). Keep this short: replace, don't append (history go
 - Old v1.0.0 .mpk removed from the repo; a local copy stays in `dist\1.0.0` (dist is git-ignored).
 
 ## Next step
+- Proposed next: time range + finer columns (Year -> months, Month -> days); waiting for user's OK.
 - User tests in Studio Pro: delete old .mpk, place the widget on Reporting_Overview, check dialog look + switcher.
 - Optional: add LICENSE + GitHub Release.

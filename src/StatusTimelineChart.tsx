@@ -1,8 +1,10 @@
-import { ReactElement, useEffect, useId, useMemo, useRef, useState } from "react";
+import { ReactElement, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { ListAttributeValue, ObjectItem, ValueStatus } from "mendix";
 
 import { StatusTimelineChartContainerProps } from "../typings/StatusTimelineChartProps";
-import { StatusChart, Series } from "./components/StatusChart";
+import { ChartExporter, StatusChart, Series } from "./components/StatusChart";
+import { ExportKind, ExportMenu } from "./components/ExportMenu";
+import { usePopup } from "./components/usePopup";
 import { OptionsPanel } from "./components/OptionsPanel";
 import { StyleSwitcher } from "./components/StyleSwitcher";
 import {
@@ -15,6 +17,16 @@ import {
     writeToBrowser,
     writeToJson
 } from "./utils/choices";
+import {
+    buildCsv,
+    canCopyImage,
+    copyImage,
+    downloadBlob,
+    exportedLine,
+    exportFileName,
+    printHtml,
+    printInFrame
+} from "./utils/export";
 import { offeredStyles } from "./utils/styles";
 import { aggregate, ChangeRow, orderStatuses, parseColorMap, resolveStatus, splitList } from "./utils/aggregate";
 import { assignColors } from "./utils/colors";
@@ -95,29 +107,10 @@ export function StatusTimelineChart(props: StatusTimelineChartContainerProps): R
     const anchorRef = useRef<HTMLDivElement>(null);
     const toggleRef = useRef<HTMLButtonElement>(null);
 
-    // the options pop-up closes on a click outside it or on Escape
-    useEffect(() => {
-        if (!panelOpen) {
-            return;
-        }
-        const onPointer = (e: MouseEvent): void => {
-            if (!anchorRef.current?.contains(e.target as Node)) {
-                setPanelOpen(false);
-            }
-        };
-        const onKey = (e: KeyboardEvent): void => {
-            if (e.key === "Escape") {
-                setPanelOpen(false);
-                toggleRef.current?.focus();
-            }
-        };
-        document.addEventListener("mousedown", onPointer);
-        document.addEventListener("keydown", onKey);
-        return () => {
-            document.removeEventListener("mousedown", onPointer);
-            document.removeEventListener("keydown", onKey);
-        };
-    }, [panelOpen]);
+    const closePanel = useCallback(() => setPanelOpen(false), [setPanelOpen]);
+    usePopup(panelOpen, closePanel, anchorRef, toggleRef);
+    const [exportOpen, setExportOpen] = useState(false);
+    const exporter = useRef<ChartExporter | null>(null);
 
     // database mode: read this widget's choices once the context object has loaded
     const loadedFromDatabase = useRef(false);
@@ -257,15 +250,69 @@ export function StatusTimelineChart(props: StatusTimelineChartContainerProps): R
     ]);
 
     const title = options.title;
+
+    const exportKinds: ExportKind[] = props.showExport
+        ? (
+              [
+                  ["image", props.exportImage],
+                  ["copy", props.exportCopy],
+                  ["csv", props.exportCsv],
+                  ["pdf", props.exportPdf]
+              ] as Array<[ExportKind, boolean]>
+          )
+              .filter(([, on]) => on)
+              .map(([kind]) => kind)
+        : [];
+
+    /** Exports exactly what is on screen: current options and only the statuses visible in the legend. */
+    const runExport = async (kind: ExportKind): Promise<string | undefined> => {
+        const handle = exporter.current;
+        if (!chart || !handle) {
+            return undefined;
+        }
+        const now = new Date();
+        const stamp = props.exportStamp
+            ? exportedLine(now, options.period, options.periodCount, options.mode)
+            : undefined;
+        const name = exportFileName(props.exportFileName, title || "Chart", now);
+        const visible = new Set(handle.visibleNames());
+        const series = chart.series.filter(s => visible.has(s.name));
+        const png = (): Promise<Blob> => handle.toPng({ title, footer: stamp });
+
+        if (kind === "csv") {
+            downloadBlob(
+                new Blob([buildCsv(chart.labels, series, stamp)], { type: "text/csv;charset=utf-8" }),
+                name + ".csv"
+            );
+            return undefined;
+        }
+        if (kind === "image") {
+            downloadBlob(await png(), name + ".png");
+            return undefined;
+        }
+        if (kind === "copy") {
+            if (!canCopyImage()) {
+                return "Copying images is not possible here. Use Download image instead.";
+            }
+            await copyImage(png());
+            return "Image copied. Paste it with Ctrl+V.";
+        }
+        const url = URL.createObjectURL(await png());
+        // the picture already carries the "Exported" line, so the print page does not repeat it
+        printInFrame(printHtml(name, url, chart.labels, series), () => URL.revokeObjectURL(url));
+        return undefined;
+    };
     const missingItemId = options.mode === "snapshot" && !props.itemId;
     const noData = chart && chart.series.every(s => s.data.every(v => v === 0));
 
     return (
         <div
-            className={["widget-status-timeline-chart", panelOpen ? "stc-open" : "", props.class].join(" ").trim()}
+            className={["widget-status-timeline-chart", panelOpen || exportOpen ? "stc-open" : "", props.class]
+                .join(" ")
+                .trim()}
             style={props.style}
         >
-            {title || switcherStyles.length > 1 || props.showOptions ? (
+            {title || switcherStyles.length > 1 || props.showOptions || exportKinds.length > 0 ? (
                 <div className="stc-header">
                     {title ? <div className="stc-title">{title}</div> : <span />}
                     <div className="stc-tools">
@@ -274,6 +321,15 @@ export function StatusTimelineChart(props: StatusTimelineChartContainerProps): R
                                 styles={switcherStyles}
                                 active={chartStyle}
                                 onChange={style => updateChoices({ chartStyle: style })}
+                            />
+                        ) : null}
+                        {exportKinds.length > 0 ? (
+                            <ExportMenu
+                                kinds={exportKinds}
+                                disabled={!chart}
+                                onExport={runExport}
+                                open={exportOpen}
+                                setOpen={setExportOpen}
                             />
                         ) : null}
                         {props.showOptions ? (
@@ -341,6 +397,7 @@ export function StatusTimelineChart(props: StatusTimelineChartContainerProps): R
                         legendPosition={options.legendPosition}
                         xAxisTitle={options.xAxisTitle}
                         yAxisTitle={options.yAxisTitle}
+                        exporter={exporter}
                     />
                     {noData ? <div className="stc-overlay">No status changes in this period range.</div> : null}
                     <div className="stc-sr-only">

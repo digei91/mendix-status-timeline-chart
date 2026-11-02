@@ -57,6 +57,13 @@ export interface StatusTimelineChartContainerProps {
     offerColumns: boolean;
     offerArea: boolean;
     offerLines: boolean;
+    showExport: boolean;
+    exportImage: boolean;
+    exportCopy: boolean;
+    exportCsv: boolean;
+    exportPdf: boolean;
+    exportFileName: string;
+    exportStamp: boolean;
     rememberChoices: boolean;
     saveIn: SaveInEnum;
     choicesAttribute?: EditableValue<string>;
@@ -105,6 +112,13 @@ export interface StatusTimelineChartPreviewProps {
     offerColumns: boolean;
     offerArea: boolean;
     offerLines: boolean;
+    showExport: boolean;
+    exportImage: boolean;
+    exportCopy: boolean;
+    exportCsv: boolean;
+    exportPdf: boolean;
+    exportFileName: string;
+    exportStamp: boolean;
     rememberChoices: boolean;
     saveIn: SaveInEnum;
     choicesAttribute: string;

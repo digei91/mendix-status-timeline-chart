@@ -11,9 +11,10 @@ uses AuditLogging `LogLine` + `Log`, Log → Ticket, `Lane/Name`.)
 - `src\utils\periods.ts` – period start/add, ISO week, label formatter.
 - `src\components\StatusChart.tsx` – Chart.js rendering (totals plugin, tooltip).
 - `src\StatusTimelineChart.editorPreview.tsx` / `.editorConfig.ts` – Studio Pro preview, hide/validate settings.
-- `README.md` – user setup guide. Output: `dist\1.3.0\digei.StatusTimelineChart.mpk`.
+- `README.md` – user setup guide. Output: `dist\1.4.0\digei.StatusTimelineChart.mpk`.
 - `src\components\StyleSwitcher.tsx` + `src\utils\styles.ts` – on-page chart style switcher (v1.2.0).
 - `src\components\OptionsPanel.tsx` + `src\utils\choices.ts` – user options pop-up and saving (v1.3.0).
+- `src\components\ExportMenu.tsx` + `src\utils\export.ts` – export (PNG, copy, CSV, print) (v1.4.0).
 - `assets\icon\*.svg` – Toolbox picture sources; PNGs in `src\StatusTimelineChart.{icon,tile}[.dark].png`.
 
 ## Gotchas
@@ -25,7 +26,8 @@ uses AuditLogging `LogLine` + `Log`, Log → Ticket, `Lane/Name`.)
   keep each on one line. prettier.config.js sets printWidth 1000 for *.xml. Keep descriptions <= ~120 chars:
   Studio Pro shows about two lines and longer text overlaps the next setting.
 - ESLint 9 + .eslintrc.js: run eslint with ESLINT_USE_FLAT_CONFIG=false (plain `npm run lint` crashes).
-- Harness params: ?click=Lines, ?open=1 (or =2), ?demo=1, ?probe=1 (overflow check), ?w=320 (narrow width).
+- Export test: `node tests\harness\cdp-export.mjs <outDir>` (headless Edge, real downloads + clipboard).
+- Harness params: ?only=7, ?click=Lines, ?open=1 (or =2), ?demo=1, ?probe=1 (overflow check), ?w=320 (narrow width).
 - Visual test: `tests\harness` (index.html widget, preview.html Studio Pro preview, cdp-hover.mjs for hover
   screenshots with headless Edge).
 

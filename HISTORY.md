@@ -34,3 +34,8 @@
   VectorCraft (it may only write to C:\Projects\Content, so export to Craft Output\stc-icons, then copy).
   Verified: harness ?demo=1 (values change chart), DB mock JSON + action ran once, reload keeps browser choices,
   ?w=320 probe: nothing overflows.
+- v1.4.0: Export menu (utils/export.ts + tests, ExportMenu, StatusChart exporter handle that redraws the chart
+  at 2x on a detached canvas with title + stamp line, CSV with BOM and ';', print in a hidden iframe, clipboard
+  ClipboardItem). The export test found an old bug: legend-hidden statuses reappeared on every re-render
+  (datasets replaced); now kept by label. Also fixed: an older export's 4 s timer cleared the 'Image copied'
+  message. Verified with cdp-export.mjs: PNG/CSV downloaded and match the screen, menu, print view, clipboard.
