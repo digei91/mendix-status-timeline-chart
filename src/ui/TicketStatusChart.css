@@ -1,0 +1,57 @@
+.widget-ticket-status-chart {
+    width: 100%;
+}
+
+.widget-ticket-status-chart .tsc-title {
+    font-size: 1.15em;
+    font-weight: 600;
+    color: #0b0b0b;
+    margin: 0 0 8px;
+}
+
+.widget-ticket-status-chart .tsc-body {
+    position: relative;
+}
+
+.widget-ticket-status-chart .tsc-canvas-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.widget-ticket-status-chart .tsc-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #52514e;
+}
+
+.widget-ticket-status-chart .tsc-message-error {
+    justify-content: flex-start;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    border-left: 3px solid #e34948;
+    background: #fdf1f1;
+    color: #0b0b0b;
+}
+
+.widget-ticket-status-chart .tsc-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    color: #52514e;
+}
+
+.widget-ticket-status-chart .tsc-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}

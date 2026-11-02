@@ -1,0 +1,4 @@
+node_modules/
+dist/
+tests/testProject/
+tests/harness/out/

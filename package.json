@@ -1,0 +1,35 @@
+{
+  "name": "ticketstatuschart",
+  "widgetName": "TicketStatusChart",
+  "version": "1.0.0",
+  "description": "Counts tickets per lane (status) per period from status-change records and shows them as a stacked bar, area or line chart.",
+  "copyright": "© 2026 digei",
+  "author": "digei",
+  "engines": {
+    "node": ">=16"
+  },
+  "license": "Apache-2.0",
+  "config": {
+    "projectPath": "./tests/testProject/",
+    "mendixHost": "http://localhost:8080",
+    "developmentPort": 3000
+  },
+  "packagePath": "digei",
+  "scripts": {
+    "build": "rollup --config node_modules/@mendix/pluggable-widgets-tools/configs/rollup.config.mjs",
+    "release": "rollup --config node_modules/@mendix/pluggable-widgets-tools/configs/rollup.config.mjs --configProduction",
+    "dev": "rollup --config node_modules/@mendix/pluggable-widgets-tools/configs/rollup.config.mjs --watch",
+    "test": "jest --projects node_modules/@mendix/pluggable-widgets-tools/test-config/jest.config.js",
+    "lint": "prettier --config prettier.config.js \"src/**/*.{js,jsx,ts,tsx,scss,css}\" --check && eslint --config .eslintrc.js --ext .jsx,.js,.ts,.tsx src",
+    "build:official": "pluggable-widgets-tools build:web"
+  },
+  "devDependencies": {
+    "@mendix/pluggable-widgets-tools": "10.24.1"
+  },
+  "dependencies": {
+    "chart.js": "4.5.1"
+  },
+  "optionalDependencies": {
+    "@napi-rs/lzma-win32-x64-msvc": "^1.5.1"
+  }
+}
