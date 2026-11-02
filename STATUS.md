@@ -9,8 +9,9 @@ _Updated 2026-11-02. Keep this short: replace, don't append (history goes in HIS
 - Studio Pro dialog fix: every caption/description is one line in the XML (multi-line text showed indented and
   hid the first "What to count" option). prettier.config.js has printWidth 1000 for *.xml so it can't come back.
 - 14 unit tests pass, eslint clean (run with ESLINT_USE_FLAT_CONFIG=false; `npm run lint` trips on ESLint 9).
-- Old v1.0.0 (Ticket Status Chart) .mpk still in `dist\1.0.0`. GitHub repo still named mendix-ticket-status-chart.
-- v1.1.0 committed and pushed to GitHub (main) on 2026-11-02.
+- GitHub: https://github.com/digei91/mendix-status-timeline-chart (renamed from mendix-ticket-status-chart, old URL
+  redirects; main branch, commits as digei <digei1991@gmail.com>). v1.1.0 pushed 2026-11-02.
+- Old v1.0.0 .mpk removed from the repo; a local copy stays in `dist\1.0.0` (dist is git-ignored).
 
 ## Next step
 - User tests v1.1.0 in Studio Pro: delete old .mpk, re-place widget on Reporting_Overview, check the dialog look.
