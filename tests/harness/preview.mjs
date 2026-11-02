@@ -6,7 +6,7 @@ import * as jsxRuntime from "react/jsx-runtime";
 const src = window.__previewSrc;
 const module = { exports: {} };
 new Function("require", "module", "exports", src)(() => jsxRuntime, module, module.exports);
-const base = { className: "", height: 300, showLegend: true, title: "Tickets per lane" };
+const base = { className: "", height: 300, showLegend: true, title: "Items per status" };
 ["bars", "area", "lines"].forEach(chartStyle => {
     const cell = document.createElement("div");
     cell.className = "cell";

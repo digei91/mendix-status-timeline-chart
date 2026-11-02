@@ -10,3 +10,12 @@
   errors when snapshot has no Ticket ID.
 - Node 24 vs tools' Node 22 requirement → scripts call rollup/jest directly. Missing lzma native binary copied in.
 - Verified: jest 14/14, eslint clean, headless Edge screenshots of 4 variants, hover tooltip (CDP), design preview.
+
+## 2026-11-02
+- User tested in Studio Pro 10.24.9 (photo): first "What to count" option had no label, long tooltips were
+  indented. Cause: prettier wrapped XML text over several lines; Studio Pro shows the line breaks/indent.
+- v1.1.0: full rename to generic "Status Timeline Chart" (new widget id, files, CSS class
+  widget-status-timeline-chart / stc-, setting keys lane*→status*, ticketId→itemId), neutral examples, mode
+  labels "Snapshot at period end" / "Changes per period", all XML texts on one line, XML printWidth 1000.
+- Verified: jest 14/14, eslint clean (legacy mode), headless Edge screenshots of harness + design preview.
+  The Studio Pro dialog itself is not verifiable here (no Studio Pro).

@@ -1,60 +1,60 @@
-// Browser test page: renders the built widget with mocked Mendix props (AuditLogging-style LogLines).
+// Browser test page: renders the built widget with mocked Mendix props (status-change records with object ids).
 import { createElement as h } from "react";
 import { createRoot } from "react-dom/client";
-import { TicketStatusChart } from "../../dist/tmp/widgets/digei/ticketstatuschart/TicketStatusChart.mjs";
+import { StatusTimelineChart } from "../../dist/tmp/widgets/digei/statustimelinechart/StatusTimelineChart.mjs";
 
 let seed = 7;
 const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
 
-const LANES = [
+const STATUSES = [
     { id: "281474976710657", name: "Open" },
     { id: "281474976710658", name: "In progress" },
     { id: "281474976710659", name: "Review" },
     { id: "281474976710660", name: "Done" }
 ];
 
-// 140 tickets created over the last 12 months, each walking Open -> In progress -> Review -> Done (sometimes back)
-const logLines = [];
+// 140 items created over the last 12 months, each walking Open -> In progress -> Review -> Done (sometimes back)
+const changeRows = [];
 const now = new Date(2026, 9, 30);
 for (let t = 1; t <= 140; t++) {
     let date = new Date(now.getTime() - rand() * 365 * 86400000);
-    let lane = 0;
-    logLines.push({ id: "L" + logLines.length, ticket: "T" + t, date, newValue: LANES[0].id });
-    while (lane < 3) {
+    let status = 0;
+    changeRows.push({ id: "L" + changeRows.length, item: "T" + t, date, newValue: STATUSES[0].id });
+    while (status < 3) {
         date = new Date(date.getTime() + (2 + rand() * 40) * 86400000);
         if (date > now) break;
-        lane = rand() < 0.12 && lane > 0 ? lane - 1 : lane + 1;
-        logLines.push({ id: "L" + logLines.length, ticket: "T" + t, date, newValue: "[" + LANES[lane].id + "]" });
+        status = rand() < 0.12 && status > 0 ? status - 1 : status + 1;
+        changeRows.push({ id: "L" + changeRows.length, item: "T" + t, date, newValue: "[" + STATUSES[status].id + "]" });
     }
 }
 
 const list = items => ({ status: "available", items: items.map(i => ({ id: i.id })), _src: items });
 const byId = src => new Map(src.map(s => [s.id, s]));
-const changes = list(logLines);
-const lanes = list(LANES);
-const lineIx = byId(logLines);
-const laneIx = byId(LANES);
+const changes = list(changeRows);
+const statuses = list(STATUSES);
+const lineIx = byId(changeRows);
+const statusIx = byId(STATUSES);
 const attr = (ix, f) => ({ get: item => { const v = f(ix.get(item.id)); return { value: v, displayValue: v == null ? "" : String(v) }; } });
 const text = v => ({ status: "available", value: v });
 
 const base = {
     name: "chart", class: "", changes,
     changeDate: attr(lineIx, r => r.date),
-    laneValue: attr(lineIx, r => r.newValue),
-    ticketId: attr(lineIx, r => r.ticket),
-    lanes, laneName: attr(laneIx, l => l.name), laneColor: undefined,
+    statusValue: attr(lineIx, r => r.newValue),
+    itemId: attr(lineIx, r => r.item),
+    statuses, statusName: attr(statusIx, l => l.name), statusColor: undefined,
     mode: "snapshot", period: "month", periodCount: 12, endAt: "today", weekStart: "monday",
     chartStyle: "bars", height: 300, showTotal: true, showGrid: true,
-    laneColors: "", hiddenLanes: "", laneOrder: "", dateFormat: "",
+    statusColors: "", hiddenStatuses: "", statusOrder: "", dateFormat: "",
     showLegend: true, legendPosition: "bottom",
-    yAxisTitle: text("Tickets")
+    yAxisTitle: text("Items")
 };
 
 const variants = [
     { title: text("1. Snapshot per month, stacked bars (default settings)") },
-    { title: text("2. Snapshot, Done hidden, custom colors"), hiddenLanes: "Done", laneColors: "Open=#E74C3C; In progress=#F39C12; Review=#8E44AD" },
-    { title: text("3. Moves per week, lines + total, last 16 weeks"), mode: "moves", period: "week", periodCount: 16, chartStyle: "lines", legendPosition: "top" },
-    { title: text("4. Snapshot per quarter, stacked area, no Lanes list"), period: "quarter", periodCount: 4, chartStyle: "area", lanes: undefined, laneName: undefined, laneValue: attr(lineIx, r => LANES.find(l => r.newValue.includes(l.id)).name), laneOrder: "Open; In progress; Review; Done", legendPosition: "right" }
+    { title: text("2. Snapshot, Done hidden, custom colors"), hiddenStatuses: "Done", statusColors: "Open=#E74C3C; In progress=#F39C12; Review=#8E44AD" },
+    { title: text("3. Changes per week, lines + total, last 16 weeks"), mode: "moves", period: "week", periodCount: 16, chartStyle: "lines", legendPosition: "top" },
+    { title: text("4. Snapshot per quarter, stacked area, no Statuses list"), period: "quarter", periodCount: 4, chartStyle: "area", statuses: undefined, statusName: undefined, statusValue: attr(lineIx, r => STATUSES.find(l => r.newValue.includes(l.id)).name), statusOrder: "Open; In progress; Review; Done", legendPosition: "right" }
 ];
 
 const root = document.getElementById("root");
@@ -62,7 +62,7 @@ variants.forEach(v => {
     const cell = document.createElement("div");
     cell.className = "cell";
     root.appendChild(cell);
-    createRoot(cell).render(h(TicketStatusChart, { ...base, ...v }));
+    createRoot(cell).render(h(StatusTimelineChart, { ...base, ...v }));
 });
-window.__logLines = logLines.length;
+window.__changeRows = changeRows.length;
 

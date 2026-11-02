@@ -1,13 +1,13 @@
 import { ReactElement, useMemo } from "react";
 import { ListAttributeValue, ObjectItem, ValueStatus } from "mendix";
 
-import { TicketStatusChartContainerProps } from "../typings/TicketStatusChartProps";
+import { StatusTimelineChartContainerProps } from "../typings/StatusTimelineChartProps";
 import { StatusChart, Series } from "./components/StatusChart";
-import { aggregate, ChangeRow, orderLanes, parseColorMap, resolveLane, splitList } from "./utils/aggregate";
-import { laneColors } from "./utils/colors";
+import { aggregate, ChangeRow, orderStatuses, parseColorMap, resolveStatus, splitList } from "./utils/aggregate";
+import { assignColors } from "./utils/colors";
 import { formatPeriod, WeekStart } from "./utils/periods";
 
-import "./ui/TicketStatusChart.css";
+import "./ui/StatusTimelineChart.css";
 
 /** Reads an attribute as text: enum captions, plain strings, numbers as digits. */
 function readText(attr: ListAttributeValue<any> | undefined, item: ObjectItem): string | undefined {
@@ -31,30 +31,30 @@ function sessionLocale(): string | undefined {
     }
 }
 
-export function TicketStatusChart(props: TicketStatusChartContainerProps): ReactElement {
-    const { changes, lanes } = props;
+export function StatusTimelineChart(props: StatusTimelineChartContainerProps): ReactElement {
+    const { changes, statuses } = props;
     const weekStart: WeekStart = props.weekStart === "sunday" ? 0 : 1;
 
-    const laneInfo = useMemo(() => {
+    const statusInfo = useMemo(() => {
         const idToName = new Map<string, string>();
         const known: string[] = [];
         const colorOf = new Map<string, string>();
-        if (lanes?.status === ValueStatus.Available && lanes.items && props.laneName) {
-            for (const item of lanes.items) {
-                const name = readText(props.laneName, item);
+        if (statuses?.status === ValueStatus.Available && statuses.items && props.statusName) {
+            for (const item of statuses.items) {
+                const name = readText(props.statusName, item);
                 if (!name) {
                     continue;
                 }
                 idToName.set(String(item.id), name);
                 known.push(name);
-                const color = readText(props.laneColor, item);
+                const color = readText(props.statusColor, item);
                 if (color) {
                     colorOf.set(name, color);
                 }
             }
         }
         return { idToName, known, colorOf };
-    }, [lanes, props.laneName, props.laneColor]);
+    }, [statuses, props.statusName, props.statusColor]);
 
     const result = useMemo(() => {
         if (changes.status !== ValueStatus.Available || !changes.items) {
@@ -68,8 +68,8 @@ export function TicketStatusChart(props: TicketStatusChartContainerProps): React
             }
             rows.push({
                 date,
-                lane: resolveLane(readText(props.laneValue, item), laneInfo.idToName),
-                ticket: readText(props.ticketId, item)
+                status: resolveStatus(readText(props.statusValue, item), statusInfo.idToName),
+                item: readText(props.itemId, item)
             });
         }
         return aggregate(rows, {
@@ -82,14 +82,14 @@ export function TicketStatusChart(props: TicketStatusChartContainerProps): React
     }, [
         changes,
         props.changeDate,
-        props.laneValue,
-        props.ticketId,
+        props.statusValue,
+        props.itemId,
         props.mode,
         props.period,
         props.periodCount,
         props.endAt,
         weekStart,
-        laneInfo
+        statusInfo
     ]);
 
     const chart = useMemo(() => {
@@ -98,47 +98,47 @@ export function TicketStatusChart(props: TicketStatusChartContainerProps): React
         }
         const locale = sessionLocale();
         const labels = result.periods.map(p => formatPeriod(p, props.period, props.dateFormat, locale, weekStart));
-        const ordered = orderLanes([...result.counts.keys()], laneInfo.known, splitList(props.laneOrder));
-        const colors = laneColors(ordered, laneInfo.colorOf, parseColorMap(props.laneColors));
-        const hidden = new Set(splitList(props.hiddenLanes).map(l => l.toLowerCase()));
+        const ordered = orderStatuses([...result.counts.keys()], statusInfo.known, splitList(props.statusOrder));
+        const colors = assignColors(ordered, statusInfo.colorOf, parseColorMap(props.statusColors));
+        const hidden = new Set(splitList(props.hiddenStatuses).map(l => l.toLowerCase()));
         const series: Series[] = ordered
-            .filter(lane => !hidden.has(lane.toLowerCase()))
-            .map(lane => ({
-                name: lane,
-                color: colors.get(lane)!,
-                data: result.counts.get(lane) ?? new Array(labels.length).fill(0)
+            .filter(status => !hidden.has(status.toLowerCase()))
+            .map(status => ({
+                name: status,
+                color: colors.get(status)!,
+                data: result.counts.get(status) ?? new Array(labels.length).fill(0)
             }));
         return { labels, series };
     }, [
         result,
         props.period,
         props.dateFormat,
-        props.laneOrder,
-        props.laneColors,
-        props.hiddenLanes,
-        laneInfo,
+        props.statusOrder,
+        props.statusColors,
+        props.hiddenStatuses,
+        statusInfo,
         weekStart
     ]);
 
     const title = props.title?.value;
-    const missingTicketId = props.mode === "snapshot" && !props.ticketId;
+    const missingItemId = props.mode === "snapshot" && !props.itemId;
     const noData = chart && chart.series.every(s => s.data.every(v => v === 0));
 
     return (
-        <div className={["widget-ticket-status-chart", props.class].join(" ").trim()} style={props.style}>
-            {title ? <div className="tsc-title">{title}</div> : null}
-            {missingTicketId ? (
-                <div className="tsc-message tsc-message-error">
-                    &quot;Lane snapshot&quot; needs the Ticket ID setting (Data tab) to know which changes belong to the
-                    same ticket.
+        <div className={["widget-status-timeline-chart", props.class].join(" ").trim()} style={props.style}>
+            {title ? <div className="stc-title">{title}</div> : null}
+            {missingItemId ? (
+                <div className="stc-message stc-message-error">
+                    &quot;Snapshot at period end&quot; needs the Item ID setting (Data tab) to know which changes belong
+                    to the same item.
                 </div>
             ) : null}
             {!chart ? (
-                <div className="tsc-message" style={{ height: props.height }}>
+                <div className="stc-message" style={{ height: props.height }}>
                     Loading…
                 </div>
             ) : (
-                <div className="tsc-body">
+                <div className="stc-body">
                     <StatusChart
                         labels={chart.labels}
                         series={chart.series}
@@ -151,9 +151,9 @@ export function TicketStatusChart(props: TicketStatusChartContainerProps): React
                         xAxisTitle={props.xAxisTitle?.value}
                         yAxisTitle={props.yAxisTitle?.value}
                     />
-                    {noData ? <div className="tsc-overlay">No status changes in this period range.</div> : null}
-                    <table className="tsc-sr-only">
-                        <caption>{title || "Tickets per lane"}</caption>
+                    {noData ? <div className="stc-overlay">No status changes in this period range.</div> : null}
+                    <table className="stc-sr-only">
+                        <caption>{title || "Items per status"}</caption>
                         <thead>
                             <tr>
                                 <th scope="col">Period</th>

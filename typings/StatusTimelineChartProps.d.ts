@@ -1,5 +1,5 @@
 /**
- * This file was generated from TicketStatusChart.xml
+ * This file was generated from StatusTimelineChart.xml
  * WARNING: All changes made to this file will be overwritten
  * @author Mendix Widgets Framework Team
  */
@@ -19,18 +19,18 @@ export type ChartStyleEnum = "bars" | "area" | "lines";
 
 export type LegendPositionEnum = "top" | "bottom" | "left" | "right";
 
-export interface TicketStatusChartContainerProps {
+export interface StatusTimelineChartContainerProps {
     name: string;
     class: string;
     style?: CSSProperties;
     tabIndex?: number;
     changes: ListValue;
     changeDate: ListAttributeValue<Date>;
-    laneValue: ListAttributeValue<string | Big>;
-    ticketId?: ListAttributeValue<string | Big>;
-    lanes?: ListValue;
-    laneName?: ListAttributeValue<string>;
-    laneColor?: ListAttributeValue<string>;
+    statusValue: ListAttributeValue<string | Big>;
+    itemId?: ListAttributeValue<string | Big>;
+    statuses?: ListValue;
+    statusName?: ListAttributeValue<string>;
+    statusColor?: ListAttributeValue<string>;
     mode: ModeEnum;
     period: PeriodEnum;
     periodCount: number;
@@ -41,9 +41,9 @@ export interface TicketStatusChartContainerProps {
     height: number;
     showTotal: boolean;
     showGrid: boolean;
-    laneColors: string;
-    hiddenLanes: string;
-    laneOrder: string;
+    statusColors: string;
+    hiddenStatuses: string;
+    statusOrder: string;
     xAxisTitle?: DynamicValue<string>;
     yAxisTitle?: DynamicValue<string>;
     dateFormat: string;
@@ -51,7 +51,7 @@ export interface TicketStatusChartContainerProps {
     legendPosition: LegendPositionEnum;
 }
 
-export interface TicketStatusChartPreviewProps {
+export interface StatusTimelineChartPreviewProps {
     /**
      * @deprecated Deprecated since version 9.18.0. Please use class property instead.
      */
@@ -64,11 +64,11 @@ export interface TicketStatusChartPreviewProps {
     translate: (text: string) => string;
     changes: {} | { caption: string } | { type: string } | null;
     changeDate: string;
-    laneValue: string;
-    ticketId: string;
-    lanes: {} | { caption: string } | { type: string } | null;
-    laneName: string;
-    laneColor: string;
+    statusValue: string;
+    itemId: string;
+    statuses: {} | { caption: string } | { type: string } | null;
+    statusName: string;
+    statusColor: string;
     mode: ModeEnum;
     period: PeriodEnum;
     periodCount: number | null;
@@ -79,9 +79,9 @@ export interface TicketStatusChartPreviewProps {
     height: number | null;
     showTotal: boolean;
     showGrid: boolean;
-    laneColors: string;
-    hiddenLanes: string;
-    laneOrder: string;
+    statusColors: string;
+    hiddenStatuses: string;
+    statusOrder: string;
     xAxisTitle: string;
     yAxisTitle: string;
     dateFormat: string;

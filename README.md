@@ -1,84 +1,92 @@
-# Ticket Status Chart (Mendix 10.24 pluggable widget)
+# Status Timeline Chart (Mendix 10.24 pluggable widget)
 
-Shows how many tickets are in each lane (status) per day / week / month / quarter / year, counted straight from the
-status-change records (e.g. AuditLogging `LogLine`). No helper entities, no microflows. Every setting has a tooltip in
-Studio Pro.
+Shows how many items are in each status per day / week / month / quarter / year, counted straight from a list of
+status-change records (an audit log, a history entity, ...). No helper entities, no microflows. Every setting has a
+tooltip in Studio Pro.
 
-Widget file: `dist\1.0.0\digei.TicketStatusChart.mpk`
+Widget file: `dist\1.1.0\digei.StatusTimelineChart.mpk`
 
 ## Install
 
-1. Copy `digei.TicketStatusChart.mpk` into the `widgets\` folder of your Mendix app.
+1. Copy `digei.StatusTimelineChart.mpk` into the `widgets\` folder of your Mendix app.
 2. In Studio Pro: **App > Synchronize App Directory** (F4).
-3. The widget is in the Toolbox under **Charts > Ticket Status Chart**. It does not need a data view around it.
+3. The widget is in the Toolbox under **Charts > Status Timeline Chart**. It does not need a data view around it.
 
-## Setup for the AuditLogging + Lane model
+**Upgrading from Ticket Status Chart 1.0.0:** this is a new widget (new id and setting names). Delete
+`digei.TicketStatusChart.mpk` from `widgets\`, remove the old widget from your pages, place the new one and fill in
+the settings again.
+
+## What your model needs
+
+One entity with **one object per status change** that gives (directly or over associations):
+
+- the **date** of the change,
+- the **new status** (its name, an enum, or the status object's id),
+- something **unique per item** (only for snapshot mode), e.g. the item's number.
+
+Optionally an entity with **all statuses** (name, sort order, color) for ordering, colors and id → name mapping.
+
+## Settings
 
 ### Data tab
 
-| Setting | What to pick | Example |
-|---|---|---|
-| **Status changes** | Database, entity `AuditLogging.LogLine`, with an XPath so only lane changes come in | `[Member = 'MyModule.Ticket_Lane']` |
-| **Change date** | the date of the Log the line belongs to | `LogLine_Log / Log / DateTime` |
-| **New lane** | the new value of the change | `NewValue` |
-| **Ticket ID** | something unique per ticket, over your Log → Ticket association | `LogLine_Log / Log / Log_Ticket / Ticket / TicketNumber` |
-| **Lanes** (optional) | Database, entity `Lane`, sorted in your board order | sort on `Lane/SortOrder` |
-| **Lane name** | the lane's name | `Name` |
-| **Lane color** (optional) | a String attribute with a CSS color, if your Lane has one | `#E74C3C` |
+| Setting | What to pick |
+|---|---|
+| **Status changes** | Database source on your change/audit entity, with an XPath that keeps only status changes (and limits the time span for big logs) |
+| **Change date** | when the change happened |
+| **New status** | the status the item moved into |
+| **Item ID** | something unique per item (needed for "Snapshot at period end") |
+| **Statuses** (optional) | Database source on your status entity, sorted in your board order |
+| **Status name** | the status's display name |
+| **Status color** (optional) | a String attribute with a CSS color, e.g. `#E74C3C` |
 
-How to find the exact `Member` text: open one LogLine of a lane change (e.g. in a data grid) and copy what is in
-`Member`. Add a date limit for big logs, e.g.
-`[Member = 'MyModule.Ticket_Lane'][AuditLogging.LogLine_Log/AuditLogging.Log/DateTime > '[%BeginOfCurrentYear%]']`.
-In snapshot mode, keep a few months **before** the first period you show, so tickets that moved earlier are counted.
+In snapshot mode, load a few months **before** the first period you show, so items that moved earlier are counted.
 
-**About NewValue holding ids.** For associations AuditLogging often stores the lane's object id (sometimes in
-brackets, e.g. `[281474976710657]`) instead of its name. With the **Lanes** list filled in, the widget turns those
-ids into lane names. Without it you would see the ids in the legend.
+**New status holding ids.** Audit modules often store the object id of an associated status (sometimes in brackets,
+e.g. `[281474976710657]`) instead of its name. With the **Statuses** list filled in, the widget turns those ids into
+names. Without it you would see the ids in the legend.
 
-**If Studio Pro does not let you pick Ticket ID two associations deep** (`LogLine → Log → Ticket`), use one of these:
-- an attribute on `Log` that already identifies the ticket (some audit modules store the object's id, e.g.
-  `Log/ReferenceId`), or
-- add a String attribute `TicketKey` on `Log`, fill it where you create the Log ↔ Ticket association, and pick
-  `LogLine_Log / Log / TicketKey`.
+**If Studio Pro does not let you reach the item over two associations**, put a String attribute with the item key
+on the change entity's parent (or the change entity itself) and pick that.
 
 ### Chart tab
 
 - **What to count**
-  - *Lane snapshot* (default): at the end of each period, every ticket counts once, in the lane of its latest change.
-    "End of March: 12 Open, 7 In progress, 40 Done."
-  - *Moves per period*: how many changes into each lane happened in that period. "In March 9 tickets moved to Done."
+  - *Snapshot at period end* (default): at the end of each period, every item counts once, in the status of its
+    latest change. "End of March: 12 Open, 7 In progress, 40 Done."
+  - *Changes per period*: how many changes into each status happened in that period. "In March 9 items moved to Done."
 - **Period**, **Periods to show** (0 = everything), **Last period** (today or the last change), **Week starts on**.
-- **Chart style**: stacked bars, stacked area, or one line per lane. **Show totals** writes the total on top
+- **Chart style**: stacked bars, stacked area, or one line per status. **Show totals** writes the total on top
   (or adds a dashed Total line in line style).
 
-### Lanes tab
+### Statuses tab
 
-- **Lane colors**: `Open=#E74C3C; In progress=#F39C12; Done=#27AE60` (lanes without a color use the default palette).
-- **Hide lanes**: `Done; Cancelled`. In snapshot mode Done only grows, so hiding it shows the open work better.
-  Changes with an empty NewValue are grouped as `(empty)`.
-- **Lane order**: only used without a Lanes list. First = bottom of the stack.
+- **Status colors**: `Open=#E74C3C; In progress=#F39C12; Done=#27AE60` (others use the default palette).
+- **Hide statuses**: `Done; Cancelled`. In snapshot mode Done only grows, so hiding it shows the open work better.
+  Changes with an empty new status are grouped as `(empty)`.
+- **Status order**: only used without a Statuses list. First = bottom of the stack.
 
 ### Axes and legend tab
 
 Axis titles, date label format (`MMM yyyy`, `dd/MM`, `'Week' W`, `'Q'Q yyyy`, ...), legend on/off and position.
-Clicking a lane in the legend hides it; the totals update.
+Clicking a status in the legend hides it; the totals update.
 
 ## Notes
 
 - All objects of the data source are loaded (no paging), so filter with XPath for very large logs.
-- Deleted tickets are not removed from the snapshot (their last lane keeps counting). Hide that lane or filter them
-  out with XPath if needed.
-- Hovering shows every lane for that period plus the total.
+- Deleted items are not removed from the snapshot (their last status keeps counting). Hide that status or filter
+  them out with XPath if needed.
+- Hovering shows every status for that period plus the total.
 
 ## Develop
 
 ```
 npm install
-npm run build      # dev build  -> dist\1.0.0\digei.TicketStatusChart.mpk
+npm run build      # dev build  -> dist\1.1.0\digei.StatusTimelineChart.mpk
 npm run release    # minified build (use this for the app)
 npm test           # unit tests for the counting logic
 npm run lint
 ```
 
-`tests\harness\index.html` renders the built widget with 140 fake tickets (AuditLogging-style ids) in 4 variants;
-bundle it with `npx rollup --config tests/harness/rollup.harness.mjs` first.
+`tests\harness\index.html` renders the built widget with 140 fake items (status ids like an audit log) in 4
+variants; bundle it with `npx rollup --config tests/harness/rollup.harness.mjs` first.

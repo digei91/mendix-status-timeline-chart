@@ -1,6 +1,6 @@
 /** Categorical palette in fixed order (validated for color-blind separation of neighbours). */
 export const PALETTE = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#6250d6", "#e34948"];
-/** Lanes past the eighth get neutral greys instead of generated hues. */
+/** Statuses past the eighth get neutral greys instead of generated hues. */
 const OVERFLOW = ["#8a8985", "#b0afa9", "#6b6a66", "#c9c8c2"];
 
 export const TEXT_PRIMARY = "#0b0b0b";
@@ -8,22 +8,22 @@ export const TEXT_SECONDARY = "#52514e";
 export const GRID = "#e4e3df";
 export const SURFACE = "#ffffff";
 
-/** Color per lane: lane-object color, then the "Lane colors" setting, then the palette by position. */
-export function laneColors(
-    orderedLanes: string[],
-    fromLaneObjects: Map<string, string>,
+/** Color per status: status-object color, then the "Status colors" setting, then the palette by position. */
+export function assignColors(
+    orderedStatuses: string[],
+    fromStatusObjects: Map<string, string>,
     fromSetting: Map<string, string>
 ): Map<string, string> {
     const result = new Map<string, string>();
     let paletteIndex = 0;
-    for (const lane of orderedLanes) {
-        const fixed = fromLaneObjects.get(lane) || fromSetting.get(lane.toLowerCase());
+    for (const status of orderedStatuses) {
+        const fixed = fromStatusObjects.get(status) || fromSetting.get(status.toLowerCase());
         if (fixed) {
-            result.set(lane, fixed);
+            result.set(status, fixed);
             continue;
         }
         const i = paletteIndex++;
-        result.set(lane, i < PALETTE.length ? PALETTE[i] : OVERFLOW[(i - PALETTE.length) % OVERFLOW.length]);
+        result.set(status, i < PALETTE.length ? PALETTE[i] : OVERFLOW[(i - PALETTE.length) % OVERFLOW.length]);
     }
     return result;
 }

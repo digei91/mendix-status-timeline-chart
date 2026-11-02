@@ -75,7 +75,7 @@ function visibleTotals(chart: Chart): number[] {
 
 /** Writes the stack total above each period (stacked bars / area). */
 const totalLabelsPlugin: Plugin = {
-    id: "tscTotals",
+    id: "stcTotals",
     afterDatasetsDraw(chart, _args, options: { enabled?: boolean }) {
         if (!options.enabled) {
             return;
@@ -240,7 +240,7 @@ function buildOptions(props: StatusChartProps): ChartOptions<"bar" | "line"> {
                 }
             },
             // custom plugin options
-            ...({ tscTotals: { enabled: props.showTotal && stacked } } as object)
+            ...({ stcTotals: { enabled: props.showTotal && stacked } } as object)
         }
     };
 }
@@ -285,7 +285,7 @@ export function StatusChart(props: StatusChartProps): ReactElement {
     );
 
     return (
-        <div className="tsc-canvas-wrap" style={{ height: props.height }}>
+        <div className="stc-canvas-wrap" style={{ height: props.height }}>
             <canvas ref={canvasRef} role="img" aria-label={describe(props)} />
         </div>
     );
@@ -295,7 +295,7 @@ function describe(props: StatusChartProps): string {
     if (!props.labels.length) {
         return "Empty chart";
     }
-    return `Tickets per lane from ${props.labels[0]} to ${props.labels[props.labels.length - 1]}: ${props.series
+    return `Items per status from ${props.labels[0]} to ${props.labels[props.labels.length - 1]}: ${props.series
         .map(s => s.name)
         .join(", ")}`;
 }

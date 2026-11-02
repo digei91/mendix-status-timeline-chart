@@ -1,8 +1,8 @@
 import { ReactElement } from "react";
-import { TicketStatusChartPreviewProps } from "../typings/TicketStatusChartProps";
+import { StatusTimelineChartPreviewProps } from "../typings/StatusTimelineChartProps";
 import { PALETTE, GRID, TEXT_SECONDARY } from "./utils/colors";
 
-const SAMPLE_LANES = ["Open", "In progress", "Review", "Done"];
+const SAMPLE_STATUSES = ["Open", "In progress", "Review", "Done"];
 const SAMPLE = [
     [6, 4, 2, 3],
     [8, 5, 3, 6],
@@ -14,7 +14,7 @@ const SAMPLE = [
 const LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
 
 /** Static sample chart for Studio Pro's Design mode (no data is available there). */
-export function preview(props: TicketStatusChartPreviewProps): ReactElement {
+export function preview(props: StatusTimelineChartPreviewProps): ReactElement {
     const width = 420;
     const height = Math.max(160, Math.min(props.height || 360, 360));
     const plotTop = 18;
@@ -42,14 +42,14 @@ export function preview(props: TicketStatusChartPreviewProps): ReactElement {
                     />
                 ))}
                 {lineMode
-                    ? SAMPLE_LANES.map((_, lane) => (
+                    ? SAMPLE_STATUSES.map((_, status) => (
                           <polyline
-                              key={lane}
+                              key={status}
                               fill="none"
-                              stroke={PALETTE[lane]}
+                              stroke={PALETTE[status]}
                               strokeWidth={2}
                               points={SAMPLE.map(
-                                  (row, i) => `${30 + slot * i + slot / 2},${plotBottom - row[lane] * lineScale}`
+                                  (row, i) => `${30 + slot * i + slot / 2},${plotBottom - row[status] * lineScale}`
                               ).join(" ")}
                           />
                       ))
@@ -58,17 +58,17 @@ export function preview(props: TicketStatusChartPreviewProps): ReactElement {
                           const x = 30 + slot * i + (slot - barW) / 2;
                           return (
                               <g key={i}>
-                                  {row.map((v, lane) => {
+                                  {row.map((v, status) => {
                                       const h = v * scale;
                                       y -= h;
                                       return (
                                           <rect
-                                              key={lane}
+                                              key={status}
                                               x={x}
                                               y={y}
                                               width={barW}
                                               height={Math.max(0, h - 2)}
-                                              fill={PALETTE[lane]}
+                                              fill={PALETTE[status]}
                                               opacity={props.chartStyle === "area" ? 0.7 : 1}
                                           />
                                       );
@@ -89,7 +89,7 @@ export function preview(props: TicketStatusChartPreviewProps): ReactElement {
                     </text>
                 ))}
                 {props.showLegend
-                    ? SAMPLE_LANES.map((l, i) => (
+                    ? SAMPLE_STATUSES.map((l, i) => (
                           <g key={l} transform={`translate(${40 + i * 92}, ${height - 14})`}>
                               <rect width={9} height={9} rx={2} fill={PALETTE[i]} />
                               <text x={14} y={8} fontSize={10} fill={TEXT_SECONDARY}>
@@ -104,5 +104,5 @@ export function preview(props: TicketStatusChartPreviewProps): ReactElement {
 }
 
 export function getPreviewCss(): string {
-    return require("./ui/TicketStatusChart.css");
+    return require("./ui/StatusTimelineChart.css");
 }

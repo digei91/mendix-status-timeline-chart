@@ -1,34 +1,34 @@
 import { hidePropertiesIn, hidePropertyIn, Problem, Properties } from "@mendix/pluggable-widgets-tools";
-import { TicketStatusChartPreviewProps } from "../typings/TicketStatusChartProps";
+import { StatusTimelineChartPreviewProps } from "../typings/StatusTimelineChartProps";
 
 /** Hides settings that do nothing with the current choices, so the dialog stays short. */
-export function getProperties(values: TicketStatusChartPreviewProps, defaultProperties: Properties): Properties {
+export function getProperties(values: StatusTimelineChartPreviewProps, defaultProperties: Properties): Properties {
     if (values.period !== "week") {
         hidePropertyIn(defaultProperties, values, "weekStart");
     }
     if (!values.showLegend) {
         hidePropertyIn(defaultProperties, values, "legendPosition");
     }
-    if (!isSet(values.lanes)) {
-        hidePropertiesIn(defaultProperties, values, ["laneName", "laneColor"]);
+    if (!isSet(values.statuses)) {
+        hidePropertiesIn(defaultProperties, values, ["statusName", "statusColor"]);
     } else {
-        // with a Lanes list the order comes from that list
-        hidePropertyIn(defaultProperties, values, "laneOrder");
+        // with a Statuses list the order comes from that list
+        hidePropertyIn(defaultProperties, values, "statusOrder");
     }
     return defaultProperties;
 }
 
-export function check(values: TicketStatusChartPreviewProps): Problem[] {
+export function check(values: StatusTimelineChartPreviewProps): Problem[] {
     const problems: Problem[] = [];
-    if (values.mode === "snapshot" && !values.ticketId) {
+    if (values.mode === "snapshot" && !values.itemId) {
         problems.push({
-            property: "ticketId",
+            property: "itemId",
             message:
-                'Ticket ID is required for "Lane snapshot": select something unique per ticket, e.g. LogLine_Log/Log/Log_Ticket/Ticket/TicketNumber. Or switch "What to count" to "Moves per period".'
+                'Item ID is required for "Snapshot at period end": select an attribute that is unique per item (e.g. its number or id). Or set "What to count" to "Changes per period".'
         });
     }
-    if (isSet(values.lanes) && !values.laneName) {
-        problems.push({ property: "laneName", message: "Select the lane name attribute for the Lanes list." });
+    if (isSet(values.statuses) && !values.statusName) {
+        problems.push({ property: "statusName", message: "Select the status name attribute for the Statuses list." });
     }
     if (values.periodCount !== null && values.periodCount < 0) {
         problems.push({ property: "periodCount", message: "Periods to show must be 0 (everything) or more." });

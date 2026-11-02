@@ -1,31 +1,31 @@
-.widget-ticket-status-chart {
+.widget-status-timeline-chart {
     width: 100%;
 }
 
-.widget-ticket-status-chart .tsc-title {
+.widget-status-timeline-chart .stc-title {
     font-size: 1.15em;
     font-weight: 600;
     color: #0b0b0b;
     margin: 0 0 8px;
 }
 
-.widget-ticket-status-chart .tsc-body {
+.widget-status-timeline-chart .stc-body {
     position: relative;
 }
 
-.widget-ticket-status-chart .tsc-canvas-wrap {
+.widget-status-timeline-chart .stc-canvas-wrap {
     position: relative;
     width: 100%;
 }
 
-.widget-ticket-status-chart .tsc-message {
+.widget-status-timeline-chart .stc-message {
     display: flex;
     align-items: center;
     justify-content: center;
     color: #52514e;
 }
 
-.widget-ticket-status-chart .tsc-message-error {
+.widget-status-timeline-chart .stc-message-error {
     justify-content: flex-start;
     padding: 8px 12px;
     margin-bottom: 8px;
@@ -34,7 +34,7 @@
     color: #0b0b0b;
 }
 
-.widget-ticket-status-chart .tsc-overlay {
+.widget-status-timeline-chart .stc-overlay {
     position: absolute;
     inset: 0;
     display: flex;
@@ -44,7 +44,7 @@
     color: #52514e;
 }
 
-.widget-ticket-status-chart .tsc-sr-only {
+.widget-status-timeline-chart .stc-sr-only {
     position: absolute;
     width: 1px;
     height: 1px;

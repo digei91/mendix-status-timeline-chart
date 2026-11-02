@@ -4,7 +4,7 @@ import { writeFileSync } from "node:fs";
 const [, , url, out, x, y] = process.argv;
 const edge = spawn("C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
   ["--headless=new", "--remote-debugging-port=9333", "--window-size=1400,400", "--allow-file-access-from-files",
-   "--user-data-dir=" + process.env.TEMP + "/cdp-edge-tsc", url], { stdio: "ignore" });
+   "--user-data-dir=" + process.env.TEMP + "/cdp-edge-stc", url], { stdio: "ignore" });
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 try {
   let pages;
