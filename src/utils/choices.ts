@@ -1,6 +1,6 @@
 import type { ChartStyle, LegendPosition } from "../components/StatusChart";
 import type { CountMode } from "./aggregate";
-import type { PeriodUnit } from "./periods";
+import type { ColumnUnit, PeriodUnit } from "./periods";
 import { ALL_STYLES } from "./styles";
 
 export type EndAt = "today" | "lastChange";
@@ -11,6 +11,7 @@ export interface ChartOptions {
     mode: CountMode;
     period: PeriodUnit;
     periodCount: number;
+    columnUnit: ColumnUnit;
     endAt: EndAt;
     title: string;
     xAxisTitle: string;
@@ -25,6 +26,7 @@ export type UserChoices = Partial<ChartOptions>;
 
 const MODES: CountMode[] = ["snapshot", "moves"];
 const PERIODS: PeriodUnit[] = ["day", "week", "month", "quarter", "year"];
+const COLUMN_UNITS: ColumnUnit[] = ["auto", ...PERIODS];
 const END_AT: EndAt[] = ["today", "lastChange"];
 const LEGEND_POSITIONS: LegendPosition[] = ["top", "bottom", "left", "right"];
 export const MAX_PERIOD_COUNT = 1000;
@@ -41,6 +43,7 @@ const CHECKS: { [K in keyof ChartOptions]: (v: unknown) => ChartOptions[K] | und
     mode: oneOf(MODES),
     period: oneOf(PERIODS),
     periodCount: v => (typeof v === "number" && Number.isInteger(v) && v >= 0 && v <= MAX_PERIOD_COUNT ? v : undefined),
+    columnUnit: oneOf(COLUMN_UNITS),
     endAt: oneOf(END_AT),
     title: text,
     xAxisTitle: text,

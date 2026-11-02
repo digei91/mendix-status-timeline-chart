@@ -1,8 +1,8 @@
 import { addPeriods, PeriodUnit, startOfPeriod, WeekStart } from "./periods";
 
 export const EMPTY_STATUS = "(empty)";
-/** Safety cap so "show everything" with Period = Day over many years stays fast. */
-export const MAX_PERIODS = 1000;
+/** Safety cap on columns, so "last 3 years per day" stays fast and readable; the newest columns are kept. */
+export const MAX_PERIODS = 400;
 
 export interface ChangeRow {
     date: Date;
@@ -14,8 +14,11 @@ export type CountMode = "snapshot" | "moves";
 
 export interface AggregateOptions {
     mode: CountMode;
+    /** Size of one column. */
     unit: PeriodUnit;
-    /** Number of periods back from the last one; 0 = from the first change on. */
+    /** Unit of the time range; defaults to `unit` (one column per range unit). */
+    rangeUnit?: PeriodUnit;
+    /** Length of the time range in range units, back from the last one; 0 = from the first change on. */
     periodCount: number;
     endAt: "today" | "lastChange";
     weekStart: WeekStart;
@@ -27,6 +30,8 @@ export interface AggregateResult {
     periods: Date[];
     /** Count per status, one number per period. Contains every status seen in the data. */
     counts: Map<string, number[]>;
+    /** True when the range needed more than MAX_PERIODS columns and only the newest were kept. */
+    truncated?: boolean;
     /** Snapshot rows skipped because they had no item id. */
     skippedNoItem: number;
 }
@@ -47,16 +52,24 @@ export function aggregate(rows: ChangeRow[], options: AggregateOptions): Aggrega
 
     const lastDate =
         options.endAt === "today" || sorted.length === 0 ? options.now ?? new Date() : sorted[sorted.length - 1].date;
+    const rangeUnit = options.rangeUnit ?? unit;
     const last = startOfPeriod(lastDate, unit, weekStart);
-    let first =
+    // the range starts at the beginning of the earliest range unit, e.g. 1 January for "last 1 year"
+    const rangeStart =
         options.periodCount > 0 || sorted.length === 0
-            ? addPeriods(last, unit, -(Math.max(options.periodCount, 1) - 1))
-            : startOfPeriod(sorted[0].date, unit, weekStart);
+            ? addPeriods(
+                  startOfPeriod(lastDate, rangeUnit, weekStart),
+                  rangeUnit,
+                  -(Math.max(options.periodCount, 1) - 1)
+              )
+            : sorted[0].date;
+    let first = startOfPeriod(rangeStart, unit, weekStart);
     if (first > last) {
         first = last;
     }
     const earliest = addPeriods(last, unit, -(MAX_PERIODS - 1));
-    if (first < earliest) {
+    const truncated = first < earliest;
+    if (truncated) {
         first = earliest;
     }
 
@@ -81,7 +94,7 @@ export function aggregate(rows: ChangeRow[], options: AggregateOptions): Aggrega
                 series(row.status)[i]++;
             }
         }
-        return { periods, counts, skippedNoItem: 0 };
+        return { periods, counts, truncated, skippedNoItem: 0 };
     }
 
     const statusOfItem = new Map<string, string>();
@@ -108,7 +121,7 @@ export function aggregate(rows: ChangeRow[], options: AggregateOptions): Aggrega
             series(status)[i] = n;
         });
     });
-    return { periods, counts, skippedNoItem };
+    return { periods, counts, truncated, skippedNoItem };
 }
 
 /** Turns a raw "new value" into a status name, mapping object ids (also inside text like "[123]") to names. */

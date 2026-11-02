@@ -9,11 +9,13 @@ const series = [
 describe("export helpers", () => {
     it("formats the exported line", () => {
         expect(isoDate(date)).toBe("2026-11-02");
-        expect(exportedLine(date, "month", 6, "snapshot")).toBe(
-            "Exported 2026-11-02 16:05 · Month · last 6 periods · Snapshot at period end"
+        expect(exportedLine(date, "month", 6, "month", "snapshot")).toBe(
+            "Exported 2026-11-02 16:05 · Last 6 months · per month · Snapshot at period end"
         );
-        expect(exportedLine(date, "week", 1, "moves")).toContain("last 1 period · Changes per period");
-        expect(exportedLine(date, "year", 0, "moves")).toContain("all periods");
+        expect(exportedLine(date, "year", 1, "month", "moves")).toContain(
+            "Last 1 year · per month · Changes per period"
+        );
+        expect(exportedLine(date, "year", 0, "year", "moves")).toContain("All time · per year");
     });
 
     it("builds safe file names", () => {

@@ -2,7 +2,7 @@ import { ReactElement, useCallback, useEffect, useId, useMemo, useRef, useState 
 import { ListAttributeValue, ObjectItem, ValueStatus } from "mendix";
 
 import { StatusTimelineChartContainerProps } from "../typings/StatusTimelineChartProps";
-import { ChartExporter, StatusChart, Series } from "./components/StatusChart";
+import { AxisGroup, ChartExporter, StatusChart, Series } from "./components/StatusChart";
 import { ExportKind, ExportMenu } from "./components/ExportMenu";
 import { usePopup } from "./components/usePopup";
 import { OptionsPanel } from "./components/OptionsPanel";
@@ -30,7 +30,15 @@ import {
 import { offeredStyles } from "./utils/styles";
 import { aggregate, ChangeRow, orderStatuses, parseColorMap, resolveStatus, splitList } from "./utils/aggregate";
 import { assignColors } from "./utils/colors";
-import { formatPeriod, WeekStart } from "./utils/periods";
+import {
+    formatPeriod,
+    GROUP_FORMAT,
+    GROUP_UNIT,
+    resolveColumnUnit,
+    shortFormat,
+    startOfPeriod,
+    WeekStart
+} from "./utils/periods";
 
 import "./ui/StatusTimelineChart.css";
 
@@ -75,6 +83,7 @@ export function StatusTimelineChart(props: StatusTimelineChartContainerProps): R
             mode: props.mode,
             period: props.period,
             periodCount: Math.max(0, props.periodCount),
+            columnUnit: props.columnUnit,
             endAt: props.endAt,
             title: props.title?.value ?? "",
             xAxisTitle: props.xAxisTitle?.value ?? "",
@@ -88,6 +97,7 @@ export function StatusTimelineChart(props: StatusTimelineChartContainerProps): R
             props.mode,
             props.period,
             props.periodCount,
+            props.columnUnit,
             props.endAt,
             props.title?.value,
             props.xAxisTitle?.value,
@@ -163,6 +173,8 @@ export function StatusTimelineChart(props: StatusTimelineChartContainerProps): R
         chartStyle: pickable.includes(merged.chartStyle) ? merged.chartStyle : defaults.chartStyle
     };
     const chartStyle = options.chartStyle;
+    const columnUnit = resolveColumnUnit(options.period, options.periodCount, options.columnUnit);
+    const { mode, period, periodCount, endAt } = options;
 
     const statusInfo = useMemo(() => {
         const idToName = new Map<string, string>();
@@ -202,10 +214,11 @@ export function StatusTimelineChart(props: StatusTimelineChartContainerProps): R
             });
         }
         return aggregate(rows, {
-            mode: options.mode,
-            unit: options.period,
-            periodCount: options.periodCount,
-            endAt: options.endAt,
+            mode,
+            unit: columnUnit,
+            rangeUnit: period,
+            periodCount,
+            endAt,
             weekStart
         });
     }, [
@@ -213,10 +226,11 @@ export function StatusTimelineChart(props: StatusTimelineChartContainerProps): R
         props.changeDate,
         props.statusValue,
         props.itemId,
-        options.mode,
-        options.period,
-        options.periodCount,
-        options.endAt,
+        mode,
+        period,
+        periodCount,
+        columnUnit,
+        endAt,
         weekStart,
         statusInfo
     ]);
@@ -226,7 +240,32 @@ export function StatusTimelineChart(props: StatusTimelineChartContainerProps): R
             return undefined;
         }
         const locale = sessionLocale();
-        const labels = result.periods.map(p => formatPeriod(p, options.period, options.dateFormat, locale, weekStart));
+        const format = (p: Date, pattern: string | undefined): string =>
+            formatPeriod(p, columnUnit, pattern, locale, weekStart);
+        const labels = result.periods.map(p => format(p, options.dateFormat));
+        // automatic labels get two lines: short ones per column ("5") and the month or year once below them
+        const groupUnit = options.dateFormat.trim() ? undefined : GROUP_UNIT[columnUnit];
+        let tickLabels: string[] | undefined;
+        const groups: AxisGroup[] = [];
+        if (groupUnit) {
+            tickLabels = result.periods.map(p => format(p, shortFormat(columnUnit, options.period)));
+            result.periods.forEach((p, i) => {
+                const start = startOfPeriod(p, groupUnit, weekStart);
+                const last = groups[groups.length - 1];
+                if (last && last.key === start.getTime()) {
+                    last.to = i;
+                } else {
+                    const fmt = GROUP_FORMAT[groupUnit];
+                    groups.push({
+                        key: start.getTime(),
+                        label: formatPeriod(start, groupUnit, fmt.long, locale, weekStart),
+                        short: formatPeriod(start, groupUnit, fmt.short, locale, weekStart),
+                        from: i,
+                        to: i
+                    });
+                }
+            });
+        }
         const ordered = orderStatuses([...result.counts.keys()], statusInfo.known, splitList(props.statusOrder));
         const colors = assignColors(ordered, statusInfo.colorOf, parseColorMap(props.statusColors));
         const hidden = new Set(splitList(props.hiddenStatuses).map(l => l.toLowerCase()));
@@ -237,9 +276,10 @@ export function StatusTimelineChart(props: StatusTimelineChartContainerProps): R
                 color: colors.get(status)!,
                 data: result.counts.get(status) ?? new Array(labels.length).fill(0)
             }));
-        return { labels, series };
+        return { labels, tickLabels, groups: groupUnit ? groups : undefined, series, truncated: result.truncated };
     }, [
         result,
+        columnUnit,
         options.period,
         options.dateFormat,
         props.statusOrder,
@@ -272,7 +312,7 @@ export function StatusTimelineChart(props: StatusTimelineChartContainerProps): R
         }
         const now = new Date();
         const stamp = props.exportStamp
-            ? exportedLine(now, options.period, options.periodCount, options.mode)
+            ? exportedLine(now, options.period, options.periodCount, columnUnit, options.mode)
             : undefined;
         const name = exportFileName(props.exportFileName, title || "Chart", now);
         const visible = new Set(handle.visibleNames());
@@ -374,6 +414,12 @@ export function StatusTimelineChart(props: StatusTimelineChartContainerProps): R
                     </div>
                 </div>
             ) : null}
+            {chart?.truncated ? (
+                <div className="stc-message stc-message-error">
+                    Too many columns for this range: only the newest are shown. Choose larger columns or a shorter
+                    range.
+                </div>
+            ) : null}
             {missingItemId ? (
                 <div className="stc-message stc-message-error">
                     &quot;Snapshot at period end&quot; needs the Item ID setting (Data tab) to know which changes belong
@@ -388,6 +434,8 @@ export function StatusTimelineChart(props: StatusTimelineChartContainerProps): R
                 <div className="stc-body">
                     <StatusChart
                         labels={chart.labels}
+                        tickLabels={chart.tickLabels}
+                        groups={chart.groups}
                         series={chart.series}
                         chartStyle={chartStyle}
                         height={props.height}

@@ -1,4 +1,31 @@
 export type PeriodUnit = "day" | "week" | "month" | "quarter" | "year";
+/** Size of one column; "auto" picks finer columns for short ranges. */
+export type ColumnUnit = PeriodUnit | "auto";
+
+/** The next finer unit, used by Auto when a range would give too few columns. */
+const FINER: Record<PeriodUnit, PeriodUnit> = { day: "day", week: "day", month: "day", quarter: "week", year: "month" };
+/** Below this many columns Auto switches to the finer unit (1 year -> 12 months, 1 month -> ~30 days). */
+const AUTO_MIN_COLUMNS = 4;
+
+/**
+ * Column size for a range of `count` x `rangeUnit`. Auto keeps one column per range unit when that gives enough
+ * columns (so "last 6 months" stays 6 monthly columns) and goes one step finer for short ranges.
+ */
+export function resolveColumnUnit(rangeUnit: PeriodUnit, count: number, column: ColumnUnit): PeriodUnit {
+    if (column !== "auto") {
+        return column;
+    }
+    return count > 0 && count < AUTO_MIN_COLUMNS ? FINER[rangeUnit] : rangeUnit;
+}
+
+/** The unit that groups columns on the second axis line (days under their month, months under their year). */
+export const GROUP_UNIT: Record<PeriodUnit, PeriodUnit | undefined> = {
+    day: "month",
+    week: "month",
+    month: "year",
+    quarter: "year",
+    year: undefined
+};
 
 /** 1 = weeks start on Monday (ISO), 0 = weeks start on Sunday. */
 export type WeekStart = 0 | 1;
@@ -71,16 +98,44 @@ function dayDiff(from: Date, to: Date): number {
 }
 
 const DEFAULT_FORMATS: Record<PeriodUnit, string> = {
-    day: "dd MMM",
+    day: "dd MMM yyyy",
     week: "'W'W yyyy",
     month: "MMM yyyy",
     quarter: "'Q'Q yyyy",
     year: "yyyy"
 };
 
-const TOKEN = /'[^']*'|yyyy|yy|MMMM|MMM|MM|M|dd|d|W|Q/g;
+/** Short column labels when a second axis line shows the month or year (e.g. "5" under "November 2026"). */
+export function shortFormat(column: PeriodUnit, rangeUnit: PeriodUnit): string {
+    switch (column) {
+        case "day":
+            // a one-week range reads better with weekday names
+            return rangeUnit === "week" ? "EEE d" : "d";
+        case "week":
+            return "'W'W";
+        case "month":
+            return "MMM";
+        case "quarter":
+            return "'Q'Q";
+        case "year":
+            return "yyyy";
+    }
+}
 
-/** Formats a period start with tokens d, dd, M, MM, MMM, MMMM, yy, yyyy, W, Q; text in single quotes is literal. */
+export const GROUP_FORMAT: Record<PeriodUnit, { long: string; short: string }> = {
+    day: { long: "d MMM yyyy", short: "d MMM" },
+    week: { long: "'W'W yyyy", short: "'W'W" },
+    month: { long: "MMMM yyyy", short: "MMM yy" },
+    quarter: { long: "'Q'Q yyyy", short: "'Q'Q" },
+    year: { long: "yyyy", short: "yy" }
+};
+
+const TOKEN = /'[^']*'|yyyy|yy|MMMM|MMM|MM|M|EEEE|EEE|dd|d|W|Q/g;
+
+/**
+ * Formats a period start with tokens d, dd, M, MM, MMM, MMMM, EEE, EEEE (weekday), yy, yyyy, W, Q; text in single
+ * quotes is literal.
+ */
 export function formatPeriod(
     start: Date,
     unit: PeriodUnit,
@@ -102,6 +157,10 @@ export function formatPeriod(
                 return monthName(start, locale, "long");
             case "MMM":
                 return monthName(start, locale, "short");
+            case "EEEE":
+                return weekdayName(start, locale, "long");
+            case "EEE":
+                return weekdayName(start, locale, "short");
             case "MM":
                 return pad(start.getMonth() + 1);
             case "M":
@@ -122,6 +181,14 @@ export function formatPeriod(
 
 function pad(n: number): string {
     return n < 10 ? "0" + n : String(n);
+}
+
+function weekdayName(date: Date, locale: string | undefined, style: "short" | "long"): string {
+    try {
+        return new Intl.DateTimeFormat(locale, { weekday: style }).format(date);
+    } catch {
+        return new Intl.DateTimeFormat(undefined, { weekday: style }).format(date);
+    }
 }
 
 function monthName(date: Date, locale: string | undefined, style: "short" | "long"): string {

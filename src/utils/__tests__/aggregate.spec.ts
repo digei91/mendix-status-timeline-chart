@@ -1,5 +1,13 @@
-import { aggregate, ChangeRow, EMPTY_STATUS, orderStatuses, parseColorMap, resolveStatus } from "../aggregate";
-import { formatPeriod, startOfPeriod, weekNumber } from "../periods";
+import {
+    aggregate,
+    ChangeRow,
+    EMPTY_STATUS,
+    MAX_PERIODS,
+    orderStatuses,
+    parseColorMap,
+    resolveStatus
+} from "../aggregate";
+import { formatPeriod, resolveColumnUnit, shortFormat, startOfPeriod, weekNumber } from "../periods";
 
 const d = (s: string): Date => new Date(s + "T12:00:00");
 
@@ -146,5 +154,67 @@ describe("periods", () => {
         expect(formatPeriod(d("2025-12-29"), "week", "", "en-US", 1)).toBe("W1 2026");
         expect(formatPeriod(d("2026-03-05"), "day", "dd/MM/yy", "en-US", 1)).toBe("05/03/26");
         expect(formatPeriod(d("2026-03-05"), "week", "'Week' W", "en-US", 1)).toBe("Week 10");
+    });
+});
+
+describe("time range with finer columns", () => {
+    const now = new Date(2026, 10, 2, 12);
+
+    it("Auto: short ranges get finer columns, longer ranges keep one column per range unit", () => {
+        expect(resolveColumnUnit("year", 1, "auto")).toBe("month");
+        expect(resolveColumnUnit("month", 1, "auto")).toBe("day");
+        expect(resolveColumnUnit("quarter", 1, "auto")).toBe("week");
+        expect(resolveColumnUnit("week", 2, "auto")).toBe("day");
+        expect(resolveColumnUnit("month", 6, "auto")).toBe("month");
+        expect(resolveColumnUnit("year", 0, "auto")).toBe("year");
+        expect(resolveColumnUnit("year", 1, "quarter")).toBe("quarter");
+    });
+
+    it("last 1 year per month runs from January to the current month", () => {
+        const r = aggregate(rows, {
+            mode: "moves",
+            unit: "month",
+            rangeUnit: "year",
+            periodCount: 1,
+            endAt: "today",
+            weekStart: 1,
+            now
+        });
+        expect(r.periods).toHaveLength(11);
+        expect(r.periods[0]).toEqual(new Date(2026, 0, 1));
+        expect(r.counts.get("Open")?.slice(0, 2)).toEqual([2, 1]);
+    });
+
+    it("last 1 month per day has one column per day up to today", () => {
+        const r = aggregate([], {
+            mode: "moves",
+            unit: "day",
+            rangeUnit: "month",
+            periodCount: 1,
+            endAt: "today",
+            weekStart: 1,
+            now
+        });
+        expect(r.periods.map(p => p.getDate())).toEqual([1, 2]);
+    });
+
+    it("caps very long ranges and says so", () => {
+        const r = aggregate([], {
+            mode: "moves",
+            unit: "day",
+            rangeUnit: "year",
+            periodCount: 3,
+            endAt: "today",
+            weekStart: 1,
+            now
+        });
+        expect(r.periods).toHaveLength(MAX_PERIODS);
+        expect(r.truncated).toBe(true);
+    });
+
+    it("short labels with weekday names", () => {
+        expect(shortFormat("day", "week")).toBe("EEE d");
+        expect(formatPeriod(new Date(2026, 10, 2), "day", "EEE d", "en-US", 1)).toBe("Mon 2");
+        expect(formatPeriod(new Date(2026, 10, 2), "day", undefined, "en-US", 1)).toBe("02 Nov 2026");
     });
 });

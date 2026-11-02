@@ -3,7 +3,8 @@ import { StatusTimelineChartPreviewProps } from "../typings/StatusTimelineChartP
 
 /** Hides settings that do nothing with the current choices, so the dialog stays short. */
 export function getProperties(values: StatusTimelineChartPreviewProps, defaultProperties: Properties): Properties {
-    if (values.period !== "week") {
+    const weekly = values.period === "week" || values.period === "quarter" || values.columnUnit === "week";
+    if (!weekly) {
         hidePropertyIn(defaultProperties, values, "weekStart");
     }
     if (!values.showLegend) {

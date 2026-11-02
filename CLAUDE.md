@@ -8,10 +8,10 @@ uses AuditLogging `LogLine` + `Log`, Log → Ticket, `Lane/Name`.)
 ## Key files
 - `src\StatusTimelineChart.xml` – all settings + tooltip texts (descriptions), each on ONE line.
 - `src\utils\aggregate.ts` – snapshot / moves counting, id → status name mapping, status order.
-- `src\utils\periods.ts` – period start/add, ISO week, label formatter.
+- `src\utils\periods.ts` – period start/add, ISO week, label formatter, Auto column size, short/group labels.
 - `src\components\StatusChart.tsx` – Chart.js rendering (totals plugin, tooltip).
 - `src\StatusTimelineChart.editorPreview.tsx` / `.editorConfig.ts` – Studio Pro preview, hide/validate settings.
-- `README.md` – user setup guide. Output: `dist\1.4.0\digei.StatusTimelineChart.mpk`.
+- `README.md` – user setup guide. Output: `dist\1.5.0\digei.StatusTimelineChart.mpk`.
 - `src\components\StyleSwitcher.tsx` + `src\utils\styles.ts` – on-page chart style switcher (v1.2.0).
 - `src\components\OptionsPanel.tsx` + `src\utils\choices.ts` – user options pop-up and saving (v1.3.0).
 - `src\components\ExportMenu.tsx` + `src\utils\export.ts` – export (PNG, copy, CSV, print) (v1.4.0).
@@ -27,7 +27,7 @@ uses AuditLogging `LogLine` + `Log`, Log → Ticket, `Lane/Name`.)
   Studio Pro shows about two lines and longer text overlaps the next setting.
 - ESLint 9 + .eslintrc.js: run eslint with ESLINT_USE_FLAT_CONFIG=false (plain `npm run lint` crashes).
 - Export test: `node tests\harness\cdp-export.mjs <outDir>` (headless Edge, real downloads + clipboard).
-- Harness params: ?only=7, ?click=Lines, ?open=1 (or =2), ?demo=1, ?probe=1 (overflow check), ?w=320 (narrow width).
+- Harness params: ?ranges=1 (one chart per time range), ?only=7, ?click=Lines, ?open=1 (or =2), ?demo=1, ?probe=1 (overflow check), ?w=320 (narrow width).
 - Visual test: `tests\harness` (index.html widget, preview.html Studio Pro preview, cdp-hover.mjs for hover
   screenshots with headless Edge).
 

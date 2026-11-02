@@ -2,12 +2,12 @@ import type { Series } from "../components/StatusChart";
 import type { CountMode } from "./aggregate";
 import type { PeriodUnit } from "./periods";
 
-const PERIOD_NAMES: Record<PeriodUnit, string> = {
-    day: "Day",
-    week: "Week",
-    month: "Month",
-    quarter: "Quarter",
-    year: "Year"
+const UNIT_NAMES: Record<PeriodUnit, [string, string]> = {
+    day: ["day", "days"],
+    week: ["week", "weeks"],
+    month: ["month", "months"],
+    quarter: ["quarter", "quarters"],
+    year: ["year", "years"]
 };
 const MODE_NAMES: Record<CountMode, string> = {
     snapshot: "Snapshot at period end",
@@ -21,11 +21,18 @@ export function isoDate(date: Date): string {
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
-/** "Exported 2026-11-02 16:20 · Month · last 6 periods · Snapshot at period end" */
-export function exportedLine(date: Date, period: PeriodUnit, periodCount: number, mode: CountMode): string {
-    const span = periodCount > 0 ? `last ${periodCount} period${periodCount === 1 ? "" : "s"}` : "all periods";
+/** "Exported 2026-11-02 16:20 · Last 1 year · per month · Snapshot at period end" */
+export function exportedLine(
+    date: Date,
+    rangeUnit: PeriodUnit,
+    count: number,
+    columnUnit: PeriodUnit,
+    mode: CountMode
+): string {
+    const [one, many] = UNIT_NAMES[rangeUnit];
+    const span = count > 0 ? `Last ${count} ${count === 1 ? one : many}` : "All time";
     const time = `${pad(date.getHours())}:${pad(date.getMinutes())}`;
-    return `Exported ${isoDate(date)} ${time} · ${PERIOD_NAMES[period]} · ${span} · ${MODE_NAMES[mode]}`;
+    return `Exported ${isoDate(date)} ${time} · ${span} · per ${UNIT_NAMES[columnUnit][0]} · ${MODE_NAMES[mode]}`;
 }
 
 /**

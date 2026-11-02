@@ -4,7 +4,7 @@ Shows how many items are in each status per day / week / month / quarter / year,
 status-change records (an audit log, a history entity, ...). No helper entities, no microflows. Every setting has a
 tooltip in Studio Pro.
 
-Widget file: `dist\1.4.0\digei.StatusTimelineChart.mpk`
+Widget file: `dist\1.5.0\digei.StatusTimelineChart.mpk`
 
 ## Install
 
@@ -55,7 +55,22 @@ on the change entity's parent (or the change entity itself) and pick that.
   - *Snapshot at period end* (default): at the end of each period, every item counts once, in the status of its
     latest change. "End of March: 12 Open, 7 In progress, 40 Done."
   - *Changes per period*: how many changes into each status happened in that period. "In March 9 items moved to Done."
-- **Period**, **Periods to show** (0 = everything), **Last period** (today or the last change), **Week starts on**.
+- **Time range** + **Range length**: how far back the chart goes, e.g. Year + 1 = the last year, Month + 6 = the last
+  6 months (0 = everything since the first change). **Range ends**: today or the period of the last change.
+- **Column per**: the size of one column. *Auto* (default) keeps one column per range unit when that gives 4 or more
+  columns, and goes one step finer for short ranges:
+
+  | Time range | Auto: one column per |
+  |---|---|
+  | 1 week / 1 month | day |
+  | 1 quarter | week |
+  | 1-3 years | month |
+  | 4+ of anything | the range unit itself (e.g. last 6 months = 6 monthly columns) |
+
+- With an empty **Date label format** the axis has two lines: short column labels (`5`, `W45`, `Jan`) and, once below
+  them, the month or year they belong to (`November 2026`, `2026`), thinned out automatically when crowded.
+- At most 400 columns: longer ranges show the newest 400 and a hint (e.g. "last 3 years per day").
+- **Week starts on**: for week ranges and week columns.
 - **Chart style**: *Stacked columns* (statuses on top of each other), *Columns* (statuses side by side in each
   period), *Stacked area*, or *Lines* (one per status). **Show totals** writes the period total above each column or
   group (or adds a dashed Total line in line style).
@@ -119,7 +134,7 @@ Clicking a status in the legend hides it; the totals update.
 
 ```
 npm install
-npm run build      # dev build  -> dist\1.4.0\digei.StatusTimelineChart.mpk
+npm run build      # dev build  -> dist\1.5.0\digei.StatusTimelineChart.mpk
 npm run release    # minified build (use this for the app)
 npm test           # unit tests for the counting logic
 npm run lint

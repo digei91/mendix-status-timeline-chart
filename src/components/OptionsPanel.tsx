@@ -13,7 +13,8 @@ export interface OptionsPanelProps {
     onClose: () => void;
 }
 
-const PERIOD_LABELS = { day: "Day", week: "Week", month: "Month", quarter: "Quarter", year: "Year" };
+const RANGE_LABELS = { day: "Days", week: "Weeks", month: "Months", quarter: "Quarters", year: "Years" };
+const COLUMN_LABELS = { auto: "Auto", day: "Day", week: "Week", month: "Month", quarter: "Quarter", year: "Year" };
 const LEGEND_LABELS = { top: "Top", bottom: "Bottom", left: "Left", right: "Right" };
 
 function Field(props: { label: string; htmlFor?: string; children: ReactNode }): ReactElement {
@@ -85,20 +86,7 @@ export function OptionsPanel({
                         onChange={mode => onChange({ mode })}
                     />
                     <div className="stc-row">
-                        <Field label="Period" htmlFor={id + "period"}>
-                            <select
-                                id={id + "period"}
-                                value={options.period}
-                                onChange={e => onChange({ period: e.target.value as ChartOptions["period"] })}
-                            >
-                                {Object.entries(PERIOD_LABELS).map(([value, text]) => (
-                                    <option key={value} value={value}>
-                                        {text}
-                                    </option>
-                                ))}
-                            </select>
-                        </Field>
-                        <Field label="Periods to show" htmlFor={id + "count"}>
+                        <Field label="Last (0 = all)" htmlFor={id + "count"}>
                             <input
                                 id={id + "count"}
                                 type="number"
@@ -106,7 +94,7 @@ export function OptionsPanel({
                                 max={MAX_PERIOD_COUNT}
                                 step={1}
                                 value={options.periodCount}
-                                title="0 shows everything from the first change on"
+                                title="How many units back; 0 shows everything from the first change on"
                                 onChange={e => {
                                     const n = Math.round(Number(e.target.value));
                                     if (e.target.value !== "" && n >= 0 && n <= MAX_PERIOD_COUNT) {
@@ -115,10 +103,37 @@ export function OptionsPanel({
                                 }}
                             />
                         </Field>
+                        <Field label="Time range" htmlFor={id + "period"}>
+                            <select
+                                id={id + "period"}
+                                value={options.period}
+                                onChange={e => onChange({ period: e.target.value as ChartOptions["period"] })}
+                            >
+                                {Object.entries(RANGE_LABELS).map(([value, text]) => (
+                                    <option key={value} value={value}>
+                                        {text}
+                                    </option>
+                                ))}
+                            </select>
+                        </Field>
                     </div>
+                    <Field label="Column per" htmlFor={id + "column"}>
+                        <select
+                            id={id + "column"}
+                            value={options.columnUnit}
+                            title="Auto: 1 year shows months, 1 month shows days"
+                            onChange={e => onChange({ columnUnit: e.target.value as ChartOptions["columnUnit"] })}
+                        >
+                            {Object.entries(COLUMN_LABELS).map(([value, text]) => (
+                                <option key={value} value={value}>
+                                    {text}
+                                </option>
+                            ))}
+                        </select>
+                    </Field>
                     <Segmented
                         name={id + "end"}
-                        label="Last period"
+                        label="Range ends"
                         value={options.endAt}
                         choices={[
                             ["today", "Current period (today)"],

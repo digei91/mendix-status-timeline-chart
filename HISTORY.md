@@ -39,3 +39,8 @@
   ClipboardItem). The export test found an old bug: legend-hidden statuses reappeared on every re-render
   (datasets replaced); now kept by label. Also fixed: an older export's 4 s timer cleared the 'Image copied'
   message. Verified with cdp-export.mjs: PNG/CSV downloaded and match the screen, menu, print view, clipboard.
+- v1.4.0 pushed (b89d8ab). v1.5.0: user wanted granularity (Year -> month names, Month -> days). `period` is now
+  the range unit, `periodCount` the range length, new `columnUnit` (auto/day..year); aggregate takes rangeUnit and
+  starts at the beginning of the earliest range unit; MAX_PERIODS 1000 -> 400 + truncated flag. Axis: short tick
+  labels + group row drawn by plugin inside the x scale (afterFit adds 22px; first try drew it over the legend).
+  Default day label now 'dd MMM yyyy' (tooltips/CSV). Exported line: 'Last 1 year · per month · ...'.

@@ -11,6 +11,8 @@ export type ModeEnum = "snapshot" | "moves";
 
 export type PeriodEnum = "day" | "week" | "month" | "quarter" | "year";
 
+export type ColumnUnitEnum = "auto" | "day" | "week" | "month" | "quarter" | "year";
+
 export type EndAtEnum = "today" | "lastChange";
 
 export type WeekStartEnum = "monday" | "sunday";
@@ -36,6 +38,7 @@ export interface StatusTimelineChartContainerProps {
     mode: ModeEnum;
     period: PeriodEnum;
     periodCount: number;
+    columnUnit: ColumnUnitEnum;
     endAt: EndAtEnum;
     weekStart: WeekStartEnum;
     chartStyle: ChartStyleEnum;
@@ -91,6 +94,7 @@ export interface StatusTimelineChartPreviewProps {
     mode: ModeEnum;
     period: PeriodEnum;
     periodCount: number | null;
+    columnUnit: ColumnUnitEnum;
     endAt: EndAtEnum;
     weekStart: WeekStartEnum;
     chartStyle: ChartStyleEnum;

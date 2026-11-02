@@ -50,10 +50,24 @@ export interface StatusChartProps {
     showLegend: boolean;
     legendPosition: LegendPosition;
     xAxisTitle?: string;
+    /** Short labels under the columns (e.g. "5"); `labels` stay the full ones for tooltips. */
+    tickLabels?: string[];
+    /** Second axis line: one label per run of columns, e.g. "November 2026" under its days. */
+    groups?: AxisGroup[];
     yAxisTitle?: string;
     totalLabel?: string;
     /** Filled with functions to export what is on screen (see ChartExporter). */
     exporter?: MutableRefObject<ChartExporter | null>;
+}
+
+export interface AxisGroup {
+    /** Start time of the group, used while building the groups. */
+    key?: number;
+    label: string;
+    /** Used when the long label does not fit its columns. */
+    short: string;
+    from: number;
+    to: number;
 }
 
 export interface ChartExporter {
@@ -92,6 +106,49 @@ function visibleSums(chart: Chart, combine: (acc: number, v: number) => number):
 }
 
 /** Writes the period total above each stack (stacked columns / area) or above each group (side-by-side columns). */
+const GROUP_ROW = 22;
+
+/** Draws the second axis line (month or year under its columns) with thin separators between groups. */
+const axisGroupsPlugin: Plugin = {
+    id: "stcGroups",
+    afterDraw(chart, _args, options: { groups?: AxisGroup[] }) {
+        const groups = options.groups;
+        const x = chart.scales.x;
+        const count = chart.data.labels?.length ?? 0;
+        if (!groups?.length || !x || !count) {
+            return;
+        }
+        const step = count > 1 ? x.getPixelForValue(1) - x.getPixelForValue(0) : x.width;
+        const ctx = chart.ctx;
+        // just under the tick labels; the axis was made GROUP_ROW taller for this line (see afterFit)
+        const y = x.top + 30;
+        ctx.save();
+        ctx.font = `600 11px ${Chart.defaults.font.family}`;
+        ctx.textBaseline = "top";
+        ctx.textAlign = "center";
+        groups.forEach((group, i) => {
+            const left = Math.max(chart.chartArea.left, x.getPixelForValue(group.from) - step / 2);
+            const right = Math.min(chart.chartArea.right, x.getPixelForValue(group.to) + step / 2);
+            if (i > 0) {
+                ctx.strokeStyle = GRID;
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(Math.round(left) + 0.5, x.top);
+                ctx.lineTo(Math.round(left) + 0.5, y + 13);
+                ctx.stroke();
+            }
+            // long label when it fits, else the short one, else nothing (a neighbour still names the time)
+            const room = right - left - 6;
+            const text = [group.label, group.short].find(t => ctx.measureText(t).width <= room);
+            if (text) {
+                ctx.fillStyle = TEXT_SECONDARY;
+                ctx.fillText(text, (left + right) / 2, y);
+            }
+        });
+        ctx.restore();
+    }
+};
+
 const totalLabelsPlugin: Plugin = {
     id: "stcTotals",
     afterDatasetsDraw(chart, _args, options: { enabled?: boolean; grouped?: boolean }) {
@@ -222,7 +279,17 @@ function buildOptions(props: StatusChartProps): ChartOptions<"bar" | "line"> {
                 stacked,
                 grid: { display: false },
                 border: { color: GRID },
-                ticks: { color: TEXT_SECONDARY, maxRotation: 0, autoSkipPadding: 12 },
+                afterFit: scale => {
+                    if (props.groups?.length) {
+                        scale.height += GROUP_ROW;
+                    }
+                },
+                ticks: {
+                    color: TEXT_SECONDARY,
+                    maxRotation: 0,
+                    autoSkipPadding: props.tickLabels ? 6 : 12,
+                    callback: (_value, index) => props.tickLabels?.[index] ?? props.labels[index]
+                },
                 title: axisTitle(props.xAxisTitle)
             },
             y: {
@@ -273,6 +340,7 @@ function buildOptions(props: StatusChartProps): ChartOptions<"bar" | "line"> {
                     }
                 }
             },
+            ...({ stcGroups: { groups: props.groups } } as object),
             // custom plugin options
             ...({ stcTotals: { enabled: totalsOnTop, grouped: props.chartStyle === "columns" } } as object)
         }
@@ -314,7 +382,7 @@ export function StatusChart(props: StatusChartProps): ReactElement {
             type: props.chartStyle === "bars" || props.chartStyle === "columns" ? "bar" : "line",
             data: { labels: props.labels, datasets: datasets as Array<ChartDataset<"bar" | "line", number[]>> },
             options,
-            plugins: [totalLabelsPlugin]
+            plugins: [totalLabelsPlugin, axisGroupsPlugin]
         }) as unknown as Chart;
         styleRef.current = props.chartStyle;
     });
@@ -364,7 +432,7 @@ function renderPng(
         type: props.chartStyle === "bars" || props.chartStyle === "columns" ? "bar" : "line",
         data: { labels: props.labels, datasets: datasets as Array<ChartDataset<"bar" | "line", number[]>> },
         options: { ...buildOptions(props), responsive: false, animation: false, devicePixelRatio: scale },
-        plugins: [totalLabelsPlugin]
+        plugins: [totalLabelsPlugin, axisGroupsPlugin]
     });
 
     const pad = 20 * scale;

@@ -50,7 +50,7 @@ const base = {
     statusValue: attr(lineIx, r => r.newValue),
     itemId: attr(lineIx, r => r.item),
     statuses, statusName: attr(statusIx, l => l.name), statusColor: undefined,
-    mode: "snapshot", period: "month", periodCount: 12, endAt: "today", weekStart: "monday",
+    mode: "snapshot", period: "month", periodCount: 12, columnUnit: "auto", endAt: "today", weekStart: "monday",
     chartStyle: "bars", height: 300, showTotal: true, showGrid: true,
     statusColors: "", hiddenStatuses: "", statusOrder: "", dateFormat: "",
     showLegend: true, legendPosition: "bottom",
@@ -59,7 +59,18 @@ const base = {
     yAxisTitle: text("Items")
 };
 
-const variants = [
+// ?ranges=1 shows one chart per time range (finer columns, two-line axis)
+const rangeVariants = [
+    { title: text("Last 1 week (Auto: per day)"), period: "week", periodCount: 1, mode: "moves" },
+    { title: text("Last 1 month (Auto: per day)"), period: "month", periodCount: 1, mode: "moves" },
+    { title: text("Last 1 quarter (Auto: per week)"), period: "quarter", periodCount: 1, mode: "moves" },
+    { title: text("Last 1 year (Auto: per month)"), period: "year", periodCount: 1 },
+    { title: text("Last 3 years (Auto: per month)"), period: "year", periodCount: 3 },
+    { title: text("Last 6 months (Auto: per month, as before)"), period: "month", periodCount: 6 },
+    { title: text("Last 2 months per day, lines"), period: "month", periodCount: 2, columnUnit: "day", chartStyle: "lines", mode: "moves" },
+    { title: text("Last 3 years per day (too many columns)"), period: "year", periodCount: 3, columnUnit: "day", mode: "moves" }
+];
+const variants = new URLSearchParams(location.search).get("ranges") ? rangeVariants : [
     { title: text("1. Snapshot per month, stacked columns (default settings)") },
     { title: text("2. Snapshot, Done hidden, custom colors"), hiddenStatuses: "Done", statusColors: "Open=#E74C3C; In progress=#F39C12; Review=#8E44AD" },
     { title: text("3. Changes per week, lines + total, last 16 weeks"), mode: "moves", period: "week", periodCount: 16, chartStyle: "lines", legendPosition: "top" },
@@ -99,8 +110,8 @@ function demo(cellIndex) {
     const field = label => [...cell.querySelectorAll(".stc-field")].find(f => f.firstChild.textContent === label);
     cell.querySelector('[title="Chart options"]').click();
     setTimeout(() => {
-        userSet(field("Period").querySelector("select"), "week");
-        userSet(field("Periods to show").querySelector("input"), "10");
+        userSet(field("Time range").querySelector("select"), "week");
+        userSet(field("Last (0 = all)").querySelector("input"), "10");
         userSet(field("Title").querySelector("input"), "Changed by the user: last 10 weeks");
         userSet(field("Y axis title").querySelector("input"), "Tickets");
         userSet(field("Legend position").querySelector("select"), "top");

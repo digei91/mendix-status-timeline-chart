@@ -75,8 +75,8 @@
                     </enumerationValues>
                 </property>
                 <property key="period" type="enumeration" defaultValue="month">
-                    <caption>Period</caption>
-                    <description>How much time one column or point covers.</description>
+                    <caption>Time range</caption>
+                    <description>Unit of the time range shown. With "Range length": Month + 6 = the last 6 months.</description>
                     <enumerationValues>
                         <enumerationValue key="day">Day</enumerationValue>
                         <enumerationValue key="week">Week</enumerationValue>
@@ -86,11 +86,23 @@
                     </enumerationValues>
                 </property>
                 <property key="periodCount" type="integer" defaultValue="12">
-                    <caption>Periods to show</caption>
-                    <description>How many periods back from the last one (Month + 12 = last 12 months). 0 = everything.</description>
+                    <caption>Range length</caption>
+                    <description>How many range units back from the last one. 0 = everything since the first change.</description>
+                </property>
+                <property key="columnUnit" type="enumeration" defaultValue="auto">
+                    <caption>Column per</caption>
+                    <description>Size of one column. Auto: finer for short ranges (1 year shows months, 1 month shows days).</description>
+                    <enumerationValues>
+                        <enumerationValue key="auto">Auto</enumerationValue>
+                        <enumerationValue key="day">Day</enumerationValue>
+                        <enumerationValue key="week">Week</enumerationValue>
+                        <enumerationValue key="month">Month</enumerationValue>
+                        <enumerationValue key="quarter">Quarter</enumerationValue>
+                        <enumerationValue key="year">Year</enumerationValue>
+                    </enumerationValues>
                 </property>
                 <property key="endAt" type="enumeration" defaultValue="today">
-                    <caption>Last period</caption>
+                    <caption>Range ends</caption>
                     <description>Today: ends with the current period. Last change: ends with the period of the newest change.</description>
                     <enumerationValues>
                         <enumerationValue key="today">Current period (today)</enumerationValue>
@@ -99,7 +111,7 @@
                 </property>
                 <property key="weekStart" type="enumeration" defaultValue="monday">
                     <caption>Week starts on</caption>
-                    <description>Only used when Period = Week.</description>
+                    <description>Used for week ranges and week columns.</description>
                     <enumerationValues>
                         <enumerationValue key="monday">Monday</enumerationValue>
                         <enumerationValue key="sunday">Sunday</enumerationValue>
@@ -163,7 +175,7 @@
                 </property>
                 <property key="dateFormat" type="string" required="false">
                     <caption>Date label format</caption>
-                    <description>Empty = automatic. Tokens: d dd MMM MMMM MM yy yyyy W (week) Q (quarter); 'text' in quotes is kept.</description>
+                    <description>Empty = automatic, two lines. Tokens: d dd EEE MMM MMMM MM yy yyyy W Q; 'text' in quotes is kept.</description>
                 </property>
             </propertyGroup>
             <propertyGroup caption="Legend">
