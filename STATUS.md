@@ -14,4 +14,4 @@ _Updated 2026-11-02. Keep this short: replace, don't append (history goes in HIS
 
 ## Next step
 - User tests v1.1.0 in Studio Pro: delete old .mpk, re-place widget on Reporting_Overview, check the dialog look.
-- Optional: rename GitHub repo, add LICENSE + Release.
+- Optional: add LICENSE + GitHub Release for v1.1.0.

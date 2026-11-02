@@ -19,3 +19,5 @@
   labels "Snapshot at period end" / "Changes per period", all XML texts on one line, XML printWidth 1000.
 - Verified: jest 14/14, eslint clean (legacy mode), headless Edge screenshots of harness + design preview.
   The Studio Pro dialog itself is not verifiable here (no Studio Pro).
+- Removed old v1.0.0 .mpk from the repo; renamed GitHub repo to digei91/mendix-status-timeline-chart (via API, gh not installed) and updated the remote.
+- Removed old v1.0.0 .mpk from the repo; renamed GitHub repo to digei91/mendix-status-timeline-chart (API; gh CLI not installed) and updated the remote.
