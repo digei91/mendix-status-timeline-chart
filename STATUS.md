@@ -36,4 +36,4 @@ _Updated 2026-11-05 (v1.5.1). Keep this short: replace, don't append (history go
 
 ## Next step
 - Project closed for now (2026-11-05). v1.5.1 tested OK by the user in Studio Pro 10.24.9.
-- Optional: LICENSE + GitHub Release.
+- Done 2026-11-05: Apache-2.0 LICENSE + GitHub Release v1.5.1 with the .mpk (releases/tag/v1.5.1). Next version: new tag + release.
