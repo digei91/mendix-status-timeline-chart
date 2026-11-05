@@ -51,3 +51,4 @@
   editorConfig warning; moves mode skips changes before rangeStart when the first column starts earlier; pending
   debounced save now flushed on unmount; choices.spec missing columnUnit (tsc error). 31 tests. Browser tests in
   headless Edge: box clears and takes 3; Days + 7 -> choices Auto/Day/Week, 7 daily columns.
+- 2026-11-05: user tested v1.5.1 in Studio Pro: OK. Project closed again.
