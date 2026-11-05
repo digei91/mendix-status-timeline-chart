@@ -7,7 +7,7 @@ import {
     parseColorMap,
     resolveStatus
 } from "../aggregate";
-import { formatPeriod, resolveColumnUnit, shortFormat, startOfPeriod, weekNumber } from "../periods";
+import { columnFits, formatPeriod, resolveColumnUnit, shortFormat, startOfPeriod, weekNumber } from "../periods";
 
 const d = (s: string): Date => new Date(s + "T12:00:00");
 
@@ -216,5 +216,34 @@ describe("time range with finer columns", () => {
         expect(shortFormat("day", "week")).toBe("EEE d");
         expect(formatPeriod(new Date(2026, 10, 2), "day", "EEE d", "en-US", 1)).toBe("Mon 2");
         expect(formatPeriod(new Date(2026, 10, 2), "day", undefined, "en-US", 1)).toBe("02 Nov 2026");
+    });
+
+    it("never uses a column bigger than the range", () => {
+        expect(columnFits("day", 7, "year")).toBe(false);
+        expect(columnFits("week", 6, "month")).toBe(true);
+        expect(columnFits("day", 0, "year")).toBe(true);
+        expect(columnFits("month", 3, "quarter")).toBe(true);
+        expect(columnFits("month", 12, "year")).toBe(true);
+        expect(columnFits("month", 11, "year")).toBe(false);
+        expect(resolveColumnUnit("day", 7, "year")).toBe("day");
+        expect(resolveColumnUnit("week", 6, "month")).toBe("month");
+    });
+
+    it("moves: a first column that starts before the range counts only changes inside the range", () => {
+        const changes: ChangeRow[] = [
+            { item: "a", date: d("2026-09-02"), status: "Open" }, // before the 6-week range
+            { item: "b", date: d("2026-09-28"), status: "Open" } // inside it
+        ];
+        const r = aggregate(changes, {
+            mode: "moves",
+            unit: "month",
+            rangeUnit: "week",
+            periodCount: 6,
+            endAt: "today",
+            weekStart: 1,
+            now
+        });
+        expect(r.periods[0]).toEqual(new Date(2026, 8, 1));
+        expect(r.counts.get("Open")).toEqual([1, 0, 0]);
     });
 });

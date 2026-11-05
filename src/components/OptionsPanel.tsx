@@ -1,5 +1,6 @@
-import { ChangeEvent, ReactElement, ReactNode, useId } from "react";
+import { ChangeEvent, ReactElement, ReactNode, useId, useState } from "react";
 import { ChartOptions, MAX_PERIOD_COUNT } from "../utils/choices";
+import { ColumnUnit, columnFits, resolveColumnUnit } from "../utils/periods";
 import { STYLE_LABELS } from "./StyleSwitcher";
 import { ChartStyle } from "./StatusChart";
 
@@ -70,6 +71,24 @@ export function OptionsPanel({
         (e: ChangeEvent<HTMLInputElement>): void =>
             onChange({ [key]: e.target.value });
 
+    // the number box keeps its own text, so it can be empty while the user types a new number
+    const [countText, setCountText] = useState(String(options.periodCount));
+    // when the number changes from outside (Reset to defaults), the box follows it
+    const [shownCount, setShownCount] = useState(options.periodCount);
+    if (shownCount !== options.periodCount) {
+        setShownCount(options.periodCount);
+        if (countText === "" || Number(countText) !== options.periodCount) {
+            setCountText(String(options.periodCount));
+        }
+    }
+    const columnChoices = (Object.keys(COLUMN_LABELS) as ColumnUnit[]).filter(unit =>
+        columnFits(options.period, options.periodCount, unit)
+    );
+    // a stored column size that no longer fits shows the size actually used
+    const columnValue = columnChoices.includes(options.columnUnit)
+        ? options.columnUnit
+        : resolveColumnUnit(options.period, options.periodCount, options.columnUnit);
+
     return (
         <div className="stc-options" role="region" aria-label="Chart options">
             <div className="stc-options-groups">
@@ -93,14 +112,17 @@ export function OptionsPanel({
                                 min={0}
                                 max={MAX_PERIOD_COUNT}
                                 step={1}
-                                value={options.periodCount}
+                                value={countText}
                                 title="How many units back; 0 shows everything from the first change on"
                                 onChange={e => {
+                                    setCountText(e.target.value);
                                     const n = Math.round(Number(e.target.value));
                                     if (e.target.value !== "" && n >= 0 && n <= MAX_PERIOD_COUNT) {
                                         onChange({ periodCount: n });
                                     }
                                 }}
+                                // an empty or invalid box goes back to the number in use
+                                onBlur={() => setCountText(String(options.periodCount))}
                             />
                         </Field>
                         <Field label="Time range" htmlFor={id + "period"}>
@@ -120,13 +142,13 @@ export function OptionsPanel({
                     <Field label="Column per" htmlFor={id + "column"}>
                         <select
                             id={id + "column"}
-                            value={options.columnUnit}
-                            title="Auto: 1 year shows months, 1 month shows days"
+                            value={columnValue}
+                            title="Auto: 1 year shows months, 1 month shows days. Sizes bigger than the range are left out."
                             onChange={e => onChange({ columnUnit: e.target.value as ChartOptions["columnUnit"] })}
                         >
-                            {Object.entries(COLUMN_LABELS).map(([value, text]) => (
+                            {columnChoices.map(value => (
                                 <option key={value} value={value}>
-                                    {text}
+                                    {COLUMN_LABELS[value]}
                                 </option>
                             ))}
                         </select>

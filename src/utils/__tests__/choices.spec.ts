@@ -31,6 +31,7 @@ const defaults: ChartOptions = {
     mode: "snapshot",
     period: "month",
     periodCount: 12,
+    columnUnit: "auto",
     endAt: "today",
     title: "Items per status",
     xAxisTitle: "",

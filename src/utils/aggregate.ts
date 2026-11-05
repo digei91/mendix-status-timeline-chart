@@ -88,9 +88,11 @@ export function aggregate(rows: ChangeRow[], options: AggregateOptions): Aggrega
 
     if (mode === "moves") {
         const index = new Map(periods.map((p, i) => [p.getTime(), i]));
+        // the first column may start before the range (last 6 weeks per month): count only changes inside the range
+        const from = options.periodCount > 0 && !truncated ? rangeStart.getTime() : -Infinity;
         for (const row of sorted) {
             const i = index.get(startOfPeriod(row.date, unit, weekStart).getTime());
-            if (i !== undefined) {
+            if (i !== undefined && row.date.getTime() >= from) {
                 series(row.status)[i]++;
             }
         }

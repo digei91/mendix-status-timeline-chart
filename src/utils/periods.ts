@@ -13,9 +13,18 @@ const AUTO_MIN_COLUMNS = 4;
  */
 export function resolveColumnUnit(rangeUnit: PeriodUnit, count: number, column: ColumnUnit): PeriodUnit {
     if (column !== "auto") {
-        return column;
+        // a column bigger than the whole range (e.g. last 7 days per year) falls back to the range unit
+        return columnFits(rangeUnit, count, column) ? column : rangeUnit;
     }
     return count > 0 && count < AUTO_MIN_COLUMNS ? FINER[rangeUnit] : rangeUnit;
+}
+
+/** Rough length in days, only used to compare sizes (3 months = 1 quarter, 12 months = 1 year, 365 days >= 1 year). */
+const APPROX_DAYS: Record<PeriodUnit, number> = { day: 1, week: 7, month: 30, quarter: 90, year: 360 };
+
+/** True when one column of this size is not bigger than the whole range; every size fits "all time" (count 0). */
+export function columnFits(rangeUnit: PeriodUnit, count: number, column: ColumnUnit): boolean {
+    return column === "auto" || count <= 0 || APPROX_DAYS[column] <= count * APPROX_DAYS[rangeUnit];
 }
 
 /** The unit that groups columns on the second axis line (days under their month, months under their year). */

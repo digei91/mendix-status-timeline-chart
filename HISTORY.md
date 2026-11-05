@@ -44,3 +44,10 @@
   starts at the beginning of the earliest range unit; MAX_PERIODS 1000 -> 400 + truncated flag. Axis: short tick
   labels + group row drawn by plugin inside the x scale (afterFit adds 22px; first try drew it over the legend).
   Default day label now 'dd MMM yyyy' (tooltips/CSV). Exported line: 'Last 1 year · per month · ...'.
+- 2026-11-05 v1.5.1: review found + fixed (each verified): "Last (0 = all)" number box could not be emptied
+  (controlled input rejected "", Backspace did nothing, typing 3 gave 63) -> own text state, resets on blur;
+  column bigger than the range (last 7 days per year counted the whole year) -> columnFits() (approx days:
+  month 30, quarter 90, year 360), resolveColumnUnit falls back to the range unit, pop-up lists only fitting sizes,
+  editorConfig warning; moves mode skips changes before rangeStart when the first column starts earlier; pending
+  debounced save now flushed on unmount; choices.spec missing columnUnit (tsc error). 31 tests. Browser tests in
+  headless Edge: box clears and takes 3; Days + 7 -> choices Auto/Day/Week, 7 daily columns.

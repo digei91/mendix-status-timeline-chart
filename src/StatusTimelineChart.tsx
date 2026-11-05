@@ -138,13 +138,22 @@ export function StatusTimelineChart(props: StatusTimelineChartContainerProps): R
         latest.current = props;
     });
     const saveTimer = useRef<ReturnType<typeof setTimeout>>();
-    useEffect(() => () => clearTimeout(saveTimer.current), []);
+    const pendingSave = useRef<(() => void) | undefined>();
+    // leaving the page within the debounce time still saves the last change
+    useEffect(
+        () => () => {
+            clearTimeout(saveTimer.current);
+            pendingSave.current?.();
+        },
+        []
+    );
     const persist = (next: UserChoices): void => {
         if (!props.rememberChoices) {
             return;
         }
         clearTimeout(saveTimer.current);
-        saveTimer.current = setTimeout(() => {
+        const save = (): void => {
+            pendingSave.current = undefined;
             const p = latest.current;
             const attr = p.choicesAttribute;
             if (!useDatabase) {
@@ -155,7 +164,9 @@ export function StatusTimelineChart(props: StatusTimelineChartContainerProps): R
                     p.onChoicesSaved.execute();
                 }
             }
-        }, 500);
+        };
+        pendingSave.current = save;
+        saveTimer.current = setTimeout(save, 500);
     };
     const updateChoices = (patch: UserChoices): void => {
         const next = changedOnly(defaults, { ...choices, ...patch });

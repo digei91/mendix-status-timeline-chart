@@ -1,7 +1,7 @@
 {
   "name": "statustimelinechart",
   "widgetName": "StatusTimelineChart",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Counts items per status per period from a list of status changes and shows them as a stacked bar, area or line chart.",
   "copyright": "© 2026 digei",
   "author": "digei",

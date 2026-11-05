@@ -4,7 +4,7 @@ Shows how many items are in each status per day / week / month / quarter / year,
 status-change records (an audit log, a history entity, ...). No helper entities, no microflows. Every setting has a
 tooltip in Studio Pro.
 
-Widget file: `dist\1.5.0\digei.StatusTimelineChart.mpk`
+Widget file: `dist\1.5.1\digei.StatusTimelineChart.mpk`
 
 ## Install
 
@@ -66,6 +66,10 @@ on the change entity's parent (or the change entity itself) and pick that.
   | 1 quarter | week |
   | 1-3 years | month |
   | 4+ of anything | the range unit itself (e.g. last 6 months = 6 monthly columns) |
+
+  A column is never bigger than the whole range: "last 7 days per year" uses days (Studio Pro warns, and the
+  Options pop-up only offers sizes that fit). When the first column starts before the range (last 6 weeks per
+  month), *Changes per period* counts only the changes inside the range.
 
 - With an empty **Date label format** the axis has two lines: short column labels (`5`, `W45`, `Jan`) and, once below
   them, the month or year they belong to (`November 2026`, `2026`), thinned out automatically when crowded.
@@ -134,7 +138,7 @@ Clicking a status in the legend hides it; the totals update.
 
 ```
 npm install
-npm run build      # dev build  -> dist\1.5.0\digei.StatusTimelineChart.mpk
+npm run build      # dev build  -> dist\1.5.1\digei.StatusTimelineChart.mpk
 npm run release    # minified build (use this for the app)
 npm test           # unit tests for the counting logic
 npm run lint

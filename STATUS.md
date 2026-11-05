@@ -1,8 +1,13 @@
 # STATUS - Mendix Chart Widget
 
-_Updated 2026-11-02 (v1.5.0). Keep this short: replace, don't append (history goes in HISTORY.md)._
+_Updated 2026-11-05 (v1.5.1). Keep this short: replace, don't append (history goes in HISTORY.md)._
 
 ## Current state
+- v1.5.1 (2026-11-05, bug fixes after a review): "Last" box can be cleared and retyped; a column never bigger
+  than the range (falls back to the range unit, Options pop-up only lists sizes that fit, Studio Pro warning);
+  moves mode counts only changes inside the range; last option change saved when leaving the page within 0.5 s;
+  test type error fixed. `dist\1.5.1\digei.StatusTimelineChart.mpk`, 31 tests, tsc + lint clean, browser-tested.
+  Pushed 2026-11-05; waiting for the user's Studio Pro test.
 - v1.5.0: time range + Column per (new `columnUnit`, default auto: <4 columns -> one step finer; old
   Month+6 look kept), two-line axis (short ticks + month/year groups, plugin stcGroups), 400-column cap with
   hint, pop-up fields Last/Time range/Column per. `dist\1.5.0\digei.StatusTimelineChart.mpk`, 29 tests, lint
@@ -30,5 +35,5 @@ _Updated 2026-11-02 (v1.5.0). Keep this short: replace, don't append (history go
 - Old v1.0.0 .mpk removed from the repo; a local copy stays in `dist\1.0.0` (dist is git-ignored).
 
 ## Next step
-- User tests in Studio Pro: delete old .mpk, place the widget on Reporting_Overview, check dialog look + switcher.
-- Optional: add LICENSE + GitHub Release.
+- Project closed for now (2026-11-02). v1.5.0 tested by the user in Studio Pro 10.24.9: works and looks good.
+- Optional: LICENSE + GitHub Release.

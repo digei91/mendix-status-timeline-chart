@@ -1,5 +1,6 @@
 import { hidePropertiesIn, hidePropertyIn, Problem, Properties } from "@mendix/pluggable-widgets-tools";
 import { StatusTimelineChartPreviewProps } from "../typings/StatusTimelineChartProps";
+import { columnFits } from "./utils/periods";
 
 /** Hides settings that do nothing with the current choices, so the dialog stays short. */
 export function getProperties(values: StatusTimelineChartPreviewProps, defaultProperties: Properties): Properties {
@@ -89,6 +90,13 @@ export function check(values: StatusTimelineChartPreviewProps): Problem[] {
     }
     if (values.periodCount !== null && values.periodCount < 0) {
         problems.push({ property: "periodCount", message: "Periods to show must be 0 (everything) or more." });
+    }
+    if (values.periodCount !== null && !columnFits(values.period, values.periodCount, values.columnUnit)) {
+        problems.push({
+            property: "columnUnit",
+            severity: "warning",
+            message: `One ${values.columnUnit} is longer than the time range, so columns per ${values.period} are used. Pick a smaller column or a longer range.`
+        });
     }
     if (values.height !== null && values.height < 120) {
         problems.push({
